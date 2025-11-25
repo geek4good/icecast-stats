@@ -9,6 +9,12 @@ services:
     secrets:
       - source: master_key
         target: /rails/config/master.key
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
 secrets:
   master_key:
