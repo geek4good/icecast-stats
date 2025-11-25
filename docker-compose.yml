@@ -12,4 +12,4 @@ services:
 
 secrets:
   master_key:
-    file: ./config/master.key
+    env: RAILS_MASTER_KEY
