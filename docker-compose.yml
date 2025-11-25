@@ -1,0 +1,15 @@
+services:
+  web:
+    build: .
+    volumes:
+      - ./log:/rails/log
+      - ./storage:/rails/storage
+    ports:
+      - "3000:3000"
+    secrets:
+      - source: master_key
+        target: /rails/config/master.key
+
+secrets:
+  master_key:
+    file: ./config/master.key
