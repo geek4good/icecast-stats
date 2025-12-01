@@ -6,7 +6,7 @@ class SnapshotJob < ApplicationJob
   def perform(*args)
     url = ENV["STATS_URL"]
     params = {}
-    headers = { "Accept" => "application/json" }
+    headers = {"Accept" => "application/json"}
     res = Faraday.get(url, params, headers)
 
     Snapshot.create(stats: res.body)
