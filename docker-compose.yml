@@ -12,3 +12,11 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+  queue:
+    build: .
+    command: bin/rails solid_queue:start
+    depends_on:
+      - web
+    volumes:
+      - ./log:/rails/log
+      - ./storage:/rails/storage
