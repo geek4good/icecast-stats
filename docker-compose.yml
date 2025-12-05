@@ -14,7 +14,7 @@ services:
       start_period: 10s
   queue:
     build: .
-    command: bin/rails solid_queue:start
+    command: bin/rails db:schema:load solid_queue:start
     depends_on:
       - web
     volumes:
