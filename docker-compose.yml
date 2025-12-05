@@ -2,8 +2,8 @@ services:
   web:
     build: .
     volumes:
-      - ./log:/rails/log
-      - ./storage:/rails/storage
+      - rails_log:/rails/log
+      - rails_storage:/rails/storage
     ports:
       - "3000:3000"
     healthcheck:
@@ -18,5 +18,9 @@ services:
     depends_on:
       - web
     volumes:
-      - ./log:/rails/log
-      - ./storage:/rails/storage
+      - rails_log:/rails/log
+      - rails_storage:/rails/storage
+
+volumes:
+  rails_log:
+  rails_storage:
