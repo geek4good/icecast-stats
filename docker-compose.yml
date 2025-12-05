@@ -22,6 +22,8 @@ services:
     volumes:
       - rails_log:/rails/log
       - rails_storage:/rails/storage
+    healthcheck:
+      disable: true
 
 volumes:
   rails_log:
