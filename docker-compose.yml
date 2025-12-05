@@ -14,7 +14,9 @@ services:
       start_period: 10s
   queue:
     build: .
-    command: bin/rails solid_queue:start
+    environment:
+        RAILS_ENV: production
+    command: bash -c "bin/rails db:prepqare && bin/rails solid_queue:start"
     depends_on:
       - web
     volumes:
