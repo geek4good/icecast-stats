@@ -16,7 +16,7 @@ services:
     build: .
     environment:
         RAILS_ENV: production
-    command: bash -c "bin/rails db:prepqare && bin/rails solid_queue:start"
+    command: bash -c "bin/rails db:prepare && bin/rails solid_queue:start"
     depends_on:
       - web
     volumes:
