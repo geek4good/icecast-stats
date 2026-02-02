@@ -10,7 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_21_044112) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_29_050401) do
+  create_table "listener_stats", force: :cascade do |t|
+    t.integer "average"
+    t.datetime "created_at", null: false
+    t.datetime "from"
+    t.integer "maximum"
+    t.integer "median"
+    t.datetime "to"
+    t.integer "total_time"
+    t.datetime "updated_at", null: false
+    t.index ["from", "to"], name: "index_listener_stats_on_from_and_to", unique: true
+  end
+
   create_table "snapshots", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "stats"

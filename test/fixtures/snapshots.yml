@@ -1,0 +1,91 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  stats: |
+    {
+      "icestats": {
+        "admin": "icemaster@surf.radio",
+        "host": "stream.surf.radio",
+        "location": "Hua Hin, Thailand",
+        "server_id": "Icecast 2.4.4",
+        "server_start": "Mon, 02 Jun 2025 08:06:59 +0000",
+        "server_start_iso8601": "2025-06-02T08:06:59+0000",
+        "source": [
+          {
+            "bitrate": 96,
+            "genre": "Pop",
+            "listener_peak": 111,
+            "listeners": 91,
+            "listenurl": "http://stream.surf.radio:8000/surf1025",
+            "server_description": "Surf Radio - Hua Hin",
+            "server_name": "Surf Radio",
+            "server_type": "audio/aacp",
+            "server_url": "https://www.surf.radio",
+            "stream_start": "Thu, 20 Nov 2025 20:29:50 +0000",
+            "stream_start_iso8601": "2025-11-20T20:29:50+0000",
+            "title": "Feargal Sharky - You Little Thief",
+            "dummy": null
+          },
+          {
+            "bitrate": 96,
+            "genre": "Pop",
+            "listener_peak": 338,
+            "listeners": 334,
+            "listenurl": "http://stream.surf.radio:8000/talay",
+            "server_description": "Talay 90.25 FM - Hua Hin",
+            "server_name": "Talay FM",
+            "server_type": "audio/aacp",
+            "server_url": "https://www.talay.asia",
+            "stream_start": "Thu, 20 Nov 2025 20:29:51 +0000",
+            "stream_start_iso8601": "2025-11-20T20:29:51+0000",
+            "title": "Playing great music from international and Thai artists, just for you!",
+            "dummy": null
+          }
+        ]
+      }
+    }
+
+two:
+  stats: |
+    {
+      "icestats": {
+        "admin": "icemaster@surf.radio",
+        "host": "stream.surf.radio",
+        "location": "Hua Hin, Thailand",
+        "server_id": "Icecast 2.4.4",
+        "server_start": "Mon, 02 Jun 2025 08:06:59 +0000",
+        "server_start_iso8601": "2025-06-02T08:06:59+0000",
+        "source": [
+          {
+            "bitrate": 96,
+            "genre": "Pop",
+            "listener_peak": 111,
+            "listeners": 80,
+            "listenurl": "http://stream.surf.radio:8000/surf1025",
+            "server_description": "Surf Radio - Hua Hin",
+            "server_name": "Surf Radio",
+            "server_type": "audio/aacp",
+            "server_url": "https://www.surf.radio",
+            "stream_start": "Thu, 20 Nov 2025 20:29:50 +0000",
+            "stream_start_iso8601": "2025-11-20T20:29:50+0000",
+            "title": "Free - All Right Now",
+            "dummy": null
+          },
+          {
+            "bitrate": 96,
+            "genre": "Pop",
+            "listener_peak": 379,
+            "listeners": 360,
+            "listenurl": "http://stream.surf.radio:8000/talay",
+            "server_description": "Talay 90.25 FM - Hua Hin",
+            "server_name": "Talay FM",
+            "server_type": "audio/aacp",
+            "server_url": "https://www.talay.asia",
+            "stream_start": "Thu, 20 Nov 2025 20:29:51 +0000",
+            "stream_start_iso8601": "2025-11-20T20:29:51+0000",
+            "title": "Playing great music from international and Thai artists, just for you!",
+            "dummy": null
+          }
+        ]
+      }
+    }

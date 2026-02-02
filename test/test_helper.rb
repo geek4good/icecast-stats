@@ -10,6 +10,10 @@ module ActiveSupport
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
 
-    # Add more helper methods to be used by all tests here...
+    # Enable spec-style DSL
+    # extend Minitest::Spec::DSL
+    # class << self
+    #   alias context describe
+    # end
   end
 end

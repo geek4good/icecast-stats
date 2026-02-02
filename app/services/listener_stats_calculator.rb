@@ -1,0 +1,37 @@
+class ListenerStatsCalculator
+  def calculate_stats(from, to)
+    return if ListenerStat.exists?(from:, to:)
+
+    snapshots = Snapshot
+      .where("created_at >= ?", from)
+      .where("created_at < ?", to)
+
+    listeners = snapshots.map { |s|
+      json = JSON.parse(s.stats)
+      json.dig("icestats", "source", 0, "listeners")
+    }
+
+    average = average(listeners).round
+    median = median(listeners).round
+    maximum = maximum(listeners)
+    total_time
+
+    ListenerStat.create(average:, median:, maximum:)
+  end
+
+  def average(vals)
+    vals.sum / Float(vals.size)
+  end
+
+  def median(vals)
+    ary = vals.sort
+    num = ary.size
+    idx = num / 2
+    num.odd? ? ary[idx + 1] : (ary[(idx - 1)..idx].sum / 2.0)
+  end
+
+  def maximum(vals)
+    ary = vals.sort
+    ary.last
+  end
+end
