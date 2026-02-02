@@ -4,7 +4,7 @@ class CreateHourlyListenerStatsView < ActiveRecord::Migration[8.1]
       CREATE VIEW hourly_listener_stats AS
       SELECT 
         date(snapshots.created_at) as date,
-        CAST(strftime('%H', snapshots.created_at) AS INTEGER) as hour,
+        strftime('%H', snapshots.created_at) as hour,
         json_extract(stream_data.value, '$.server_name') as stream_name,
         CAST(ROUND(AVG(json_extract(stream_data.value, '$.listeners'))) AS INTEGER) as avg_listeners,
         MAX(CAST(json_extract(stream_data.value, '$.listeners') AS INTEGER)) as max_listeners,
