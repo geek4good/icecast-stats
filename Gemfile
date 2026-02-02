@@ -43,6 +43,9 @@ gem "image_processing", "~> 1.2"
 # HTTP client library
 gem "faraday", "~> 2.14"
 
+# Create beautiful JS charts with one line of Ruby
+gem "chartkick"
+
 group :development, :test do
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
