@@ -10,9 +10,9 @@ class StatsSnapshotter
     if res.success?
       Snapshot.create(stats: res.body)
     else
-      logger.error(res.body)
+      Rails.logger.error(res.body)
     end
   rescue => e
-    logger.error(e.to_s)
+    Rails.logger.error(e.to_s)
   end
 end

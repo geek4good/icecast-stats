@@ -1,2 +1,2 @@
 <h1>Surf Radio</h1>
-<p><%= @count %> snapshots taken</p>
+<%= line_chart %i[avg max].map { |key| @stats[key] } %>
