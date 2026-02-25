@@ -11,6 +11,9 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[8.1].define(version: 2025_12_12_052132) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_catalog.plpgsql"
+
   create_table "listener_stats", force: :cascade do |t|
     t.integer "average"
     t.datetime "created_at", null: false
@@ -21,12 +24,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_12_052132) do
     t.datetime "to"
     t.integer "total_time"
     t.datetime "updated_at", null: false
-    t.index ["station", "from", "to"], name: "index_listener_stats_on_station_and_from_and_to", unique: true
+    t.index ["from", "to"], name: "index_listener_stats_on_from_and_to", unique: true
+    t.index ["station"], name: "index_listener_stats_on_station"
   end
 
   create_table "snapshots", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.text "stats"
+    t.jsonb "stats"
     t.datetime "updated_at", null: false
+    t.index ["stats"], name: "index_snapshots_on_stats", using: :gin
   end
 end

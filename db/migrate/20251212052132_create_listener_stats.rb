@@ -12,6 +12,7 @@ class CreateListenerStats < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :listener_stats, [:station, :from, :to], unique: true
+    add_index :listener_stats, :station
+    add_index :listener_stats, [:from, :to], unique: true
   end
 end

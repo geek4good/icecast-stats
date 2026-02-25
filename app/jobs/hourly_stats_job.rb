@@ -5,6 +5,6 @@ class HourlyStatsJob < ApplicationJob
     now = Time.now
     to = now.beginning_of_hour
     from = to.ago(1.hour)
-    ListenerStatsCalculator.new(from:, to:).calculate_stats
+    ListenerStatsCalculator.new(from:, to:).persist_stats
   end
 end
