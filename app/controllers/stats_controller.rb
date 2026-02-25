@@ -1,5 +1,6 @@
 class StatsController < ApplicationController
   def index
+    @count = Snapshot.count
     # today = Date.today
     # few_days_ago = today - 3.days
     # @stats = few_days_ago.upto(today).inject({}) do |stats, date|

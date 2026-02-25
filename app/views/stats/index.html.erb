@@ -1,5 +1,3 @@
 <h1>Surf Radio</h1>
-<% @stats.each do |date, stats| %>
-  <h2><%= date %></h2>
-  <%= line_chart %i[avg max].map { |key| stats[key] } %>
-<% end %>
+<p><%= number_with_delimiter(@count, delimiter: ",") %>
+  snapshots taken</p>
