@@ -1,0 +1,28 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+surf_radio_today:
+  station: "Surf Radio"
+  from: 2025-12-25 00:00:00
+  to: 2025-12-26 00:00:00
+  average: 50
+  median: 45
+  maximum: 100
+  total_time: 72000
+
+talay_fm_today:
+  station: "Talay FM"
+  from: 2025-12-25 00:00:00
+  to: 2025-12-26 00:00:00
+  average: 200
+  median: 180
+  maximum: 400
+  total_time: 288000
+
+surf_radio_yesterday:
+  station: "Surf Radio"
+  from: 2025-12-24 00:00:00
+  to: 2025-12-25 00:00:00
+  average: 60
+  median: 55
+  maximum: 120
+  total_time: 86400

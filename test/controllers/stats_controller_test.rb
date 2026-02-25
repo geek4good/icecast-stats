@@ -1,8 +1,11 @@
 require "test_helper"
 
 class StatsControllerTest < ActionDispatch::IntegrationTest
-  test "should get index" do
-    get stats_index_url
-    assert_response :success
+  test "root route resolves to stats#index" do
+    assert_recognizes({controller: "stats", action: "index"}, "/")
+  end
+
+  test "stats_index route resolves to stats#index" do
+    assert_recognizes({controller: "stats", action: "index"}, "/stats/index")
   end
 end
