@@ -2,14 +2,10 @@ class ListenerStatsCalculator
   def calculate_stats(from, to)
     return if ListenerStat.exists?(from:, to:)
 
-    snapshots = Snapshot
+    listeners = Snapshot
       .where("created_at >= ?", from)
       .where("created_at < ?", to)
-
-    listeners = snapshots.map { |s|
-      json = JSON.parse(s.stats)
-      json.dig("icestats", "source", 0, "listeners")
-    }
+      .pluck(Arel.sql("json_extract(stats, '$.icestats.source[0].listeners')"))
 
     average = average(listeners).round
     median = median(listeners).round
