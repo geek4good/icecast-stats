@@ -14,9 +14,9 @@ class ListenerStatsCalculator
     average = average(listeners).round
     median = median(listeners).round
     maximum = maximum(listeners)
-    total_time
+    total_time = (average * minutes).round
 
-    ListenerStat.create(average:, median:, maximum:)
+    ListenerStat.create(average:, median:, maximum:, total_time:)
   end
 
   def average(vals)
@@ -33,5 +33,12 @@ class ListenerStatsCalculator
   def maximum(vals)
     ary = vals.sort
     ary.last
+  end
+
+  def minutes(from, to)
+    return 0 if from > to
+
+    seconds = to - from
+    seconds / 60.0
   end
 end
