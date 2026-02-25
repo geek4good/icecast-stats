@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_12_052132) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_25_193614) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -24,7 +24,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_12_052132) do
     t.datetime "to"
     t.integer "total_time"
     t.datetime "updated_at", null: false
-    t.index ["from", "to"], name: "index_listener_stats_on_from_and_to", unique: true
+    t.index ["station", "from", "to"], name: "index_listener_stats_on_station_and_from_and_to", unique: true
     t.index ["station"], name: "index_listener_stats_on_station"
   end
 
