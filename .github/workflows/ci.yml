@@ -61,7 +61,7 @@ jobs:
        image: postgres:18
        env:
          POSTGRES_USER: postgres
-         POSTGRES_PASSWORD: postgres
+         POSTGRES_PASSWORD: Xk9mP2vL7nQ4wR8s
          POSTGRES_DB: surf_radio_test
        ports:
          - 5432:5432
@@ -78,6 +78,7 @@ jobs:
       - name: Run tests
         env:
           RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@localhost:5432/surf_radio_test
         run: bin/rails db:test:prepare test
 
   system-test:
@@ -88,7 +89,7 @@ jobs:
        image: postgres:18
        env:
          POSTGRES_USER: postgres
-         POSTGRES_PASSWORD: postgres
+         POSTGRES_PASSWORD: Xk9mP2vL7nQ4wR8s
          POSTGRES_DB: surf_radio_test
        ports:
          - 5432:5432
@@ -105,7 +106,7 @@ jobs:
       - name: Run System Tests
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/surf_radio_test
+          DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@localhost:5432/surf_radio_test
         run: bin/rails db:test:prepare test:system
 
       - name: Keep screenshots from failed system tests

@@ -7,7 +7,7 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: Xk9mP2vL7nQ4wR8s
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -16,10 +16,10 @@ services:
   web:
     build: .
     environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/surf_radio_production
-      CACHE_DATABASE_URL: postgres://postgres:postgres@db:5432/surf_radio_production_cache
-      QUEUE_DATABASE_URL: postgres://postgres:postgres@db:5432/surf_radio_production_queue
-      CABLE_DATABASE_URL: postgres://postgres:postgres@db:5432/surf_radio_production_cable
+      DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/surf_radio_production
+      CACHE_DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/surf_radio_production_cache
+      QUEUE_DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/surf_radio_production_queue
+      CABLE_DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/surf_radio_production_cable
     volumes:
       - rails_log:/rails/log
       - rails_storage:/rails/storage
@@ -38,10 +38,10 @@ services:
     build: .
     environment:
       RAILS_ENV: production
-      DATABASE_URL: postgres://postgres:postgres@db:5432/surf_radio_production
-      CACHE_DATABASE_URL: postgres://postgres:postgres@db:5432/surf_radio_production_cache
-      QUEUE_DATABASE_URL: postgres://postgres:postgres@db:5432/surf_radio_production_queue
-      CABLE_DATABASE_URL: postgres://postgres:postgres@db:5432/surf_radio_production_cable
+      DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/surf_radio_production
+      CACHE_DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/surf_radio_production_cache
+      QUEUE_DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/surf_radio_production_queue
+      CABLE_DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/surf_radio_production_cable
     command: bash -c "bin/rails db:prepare && bin/rails solid_queue:start"
     depends_on:
       web:
