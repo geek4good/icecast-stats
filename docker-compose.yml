@@ -52,7 +52,11 @@ services:
       - rails_log:/rails/log
       - rails_storage:/rails/storage
     healthcheck:
-      disable: true
+      test: ["CMD-SHELL", "bin/rails runner 'ActiveRecord::Base.connection.active? && SolidQueue::Process.exists? or Process.exit!'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
 
 volumes:
   postgres_data:
