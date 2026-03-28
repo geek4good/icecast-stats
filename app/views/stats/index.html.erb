@@ -1,3 +1,25 @@
 <h1>Surf Radio</h1>
-<p><%= number_with_delimiter(@count, delimiter: ",") %>
-  snapshots taken</p>
+
+<% if @surf_radio_stats.any? %>
+  <section class="chart-card">
+    <header class="chart-header">
+      <h2>Surf Radio</h2>
+      <p class="chart-subtitle">Listeners per day</p>
+    </header>
+    <%= render partial: "stats/bar_chart", locals: { stats: @surf_radio_stats } %>
+  </section>
+<% end %>
+
+<% if @talay_fm_stats.any? %>
+  <section class="chart-card">
+    <header class="chart-header">
+      <h2>Talay FM</h2>
+      <p class="chart-subtitle">Listeners per day</p>
+    </header>
+    <%= render partial: "stats/bar_chart", locals: { stats: @talay_fm_stats } %>
+  </section>
+<% end %>
+
+<% if @surf_radio_stats.empty? && @talay_fm_stats.empty? %>
+  <p>No listener stats recorded yet.</p>
+<% end %>
