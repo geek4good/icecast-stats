@@ -1,5 +1,6 @@
 <%
-  max_value = stats.maximum(:maximum) || 1
+  # stats is an array of [label, average, maximum, median]
+  max_value = stats.map { |s| s[2] }.max || 1
   grid_step = (max_value / 4.0).ceil
   grid_lines = (1..4).map { |i| i * grid_step }
 %>
@@ -17,19 +18,16 @@
   </div>
 
   <div class="chart-bars">
-    <% stats.each do |stat| %>
+    <% stats.each do |label, avg, peak, median| %>
       <%
-        avg = stat.average || 0
-        peak = stat.maximum || 0
         avg_pct = (avg.to_f / grid_lines.last * 100).round(1)
         peak_pct = ((peak - avg).to_f / grid_lines.last * 100).round(1)
-        label = stat.from.strftime("%-d %b")
       %>
       <div class="chart-bar-group"
            data-chart-tooltip-target="bar"
            data-avg="<%= avg %>"
            data-max="<%= peak %>"
-           data-median="<%= stat.median || 0 %>"
+           data-median="<%= median %>"
            data-label="<%= label %>">
         <div class="chart-bar-stack" style="height: <%= avg_pct + peak_pct %>%">
           <div class="chart-bar chart-bar--peak" style="height: <%= peak_pct > 0 ? (peak_pct / (avg_pct + peak_pct) * 100).round(1) : 0 %>%"></div>

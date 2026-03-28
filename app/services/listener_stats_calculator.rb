@@ -32,7 +32,12 @@ class ListenerStatsCalculator
         ROUND(AVG((source->>'listeners')::int) * (EXTRACT(EPOCH FROM (CAST(:to AS timestamp) - CAST(:from AS timestamp))) / 60))::int AS total_time
       FROM
         snapshots,
-        jsonb_array_elements(stats->'icestats'->'source') AS source
+        jsonb_array_elements(
+          CASE jsonb_typeof(stats->'icestats'->'source')
+            WHEN 'array' THEN stats->'icestats'->'source'
+            ELSE jsonb_build_array(stats->'icestats'->'source')
+          END
+        ) AS source
       WHERE
         created_at >= :from AND created_at < :to
       GROUP BY
