@@ -2,7 +2,7 @@ require "faraday"
 
 class StatsSnapshotter
   def snapshot_stats
-    url = ENV["STATS_URL"]
+    url = Rails.application.credentials.stats_url
     params = {}
     headers = {"Accept" => "application/json"}
     res = Faraday.get(url, params, headers)

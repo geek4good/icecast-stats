@@ -55,9 +55,6 @@ group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[mri windows], require: "debug/prelude"
 
-  # Runtime config lives in the UNIX environment, but in dev and test we use .env files
-  gem "dotenv-rails"
-
   # Standard Ruby styling
   gem "standard", "~> 1.52", require: false
 end
