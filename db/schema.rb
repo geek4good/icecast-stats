@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_25_193614) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_28_162330) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -32,6 +32,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_25_193614) do
     t.datetime "created_at", null: false
     t.jsonb "stats"
     t.datetime "updated_at", null: false
-    t.index ["stats"], name: "index_snapshots_on_stats", using: :gin
+    t.index ["created_at"], name: "index_snapshots_on_created_at"
   end
 end
