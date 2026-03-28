@@ -1,0 +1,58 @@
+[tools]
+postgres = "18.3"
+ruby = "4.0.2"
+
+[tasks."db:start"]
+description = "Start PostgreSQL"
+run = """
+pg_ctl status -D "$PGDATA" >/dev/null 2>&1 && echo "PostgreSQL already running" && exit 0
+mkdir -p "$PGDATA"
+if [ ! -f "$PGDATA/PG_VERSION" ]; then
+  initdb --no-locale -E UTF8 -D "$PGDATA"
+fi
+pg_ctl start -D "$PGDATA" -l "$PGDATA/server.log"
+"""
+
+[tasks."db:stop"]
+description = "Stop PostgreSQL"
+run = "pg_ctl stop -D \"$PGDATA\" 2>/dev/null || echo 'PostgreSQL not running'"
+
+[tasks."db:prepare"]
+description = "Create and migrate all databases"
+depends = ["db:start"]
+run = "bin/rails db:prepare"
+
+[tasks.server]
+description = "Start the Rails dev server"
+depends = ["db:prepare"]
+run = "bin/rails server"
+
+[tasks.test]
+description = "Run the test suite"
+depends = ["db:start"]
+run = "bin/rails db:test:prepare test"
+
+[tasks."test:system"]
+description = "Run system tests"
+depends = ["db:start"]
+run = "bin/rails db:test:prepare test:system"
+
+[tasks.lint]
+description = "Run StandardRB linter"
+run = "bin/standardrb"
+
+[tasks."lint:fix"]
+description = "Auto-fix StandardRB violations"
+run = "bin/standardrb --fix"
+
+[tasks.console]
+description = "Start a Rails console"
+depends = ["db:start"]
+run = "bin/rails console"
+
+[tasks.security]
+description = "Run Brakeman and bundler-audit"
+run = "bin/brakeman --no-pager && bin/bundler-audit"
+
+[env]
+PGDATA = "{{config_root}}/storage/postgres"
