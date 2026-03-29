@@ -21,8 +21,8 @@ class ListenerStatTest < ActiveSupport::TestCase
     assert_equal 2, results.count
 
     results.each do |stat|
-      assert_equal date.beginning_of_day, stat.from
-      assert_equal date.next_day.beginning_of_day, stat.to
+      assert_equal Time.zone.local(2025, 12, 25), stat.from
+      assert_equal Time.zone.local(2025, 12, 26), stat.to
     end
   end
 

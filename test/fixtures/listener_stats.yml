@@ -2,8 +2,8 @@
 
 surf_radio_today:
   station: "Surf Radio"
-  from: 2025-12-25 00:00:00
-  to: 2025-12-26 00:00:00
+  from: <%= Time.zone.local(2025, 12, 25).iso8601 %>
+  to: <%= Time.zone.local(2025, 12, 26).iso8601 %>
   average: 50
   median: 45
   maximum: 100
@@ -11,8 +11,8 @@ surf_radio_today:
 
 talay_fm_today:
   station: "Talay FM"
-  from: 2025-12-25 00:00:00
-  to: 2025-12-26 00:00:00
+  from: <%= Time.zone.local(2025, 12, 25).iso8601 %>
+  to: <%= Time.zone.local(2025, 12, 26).iso8601 %>
   average: 200
   median: 180
   maximum: 400
@@ -20,8 +20,8 @@ talay_fm_today:
 
 surf_radio_yesterday:
   station: "Surf Radio"
-  from: 2025-12-24 00:00:00
-  to: 2025-12-25 00:00:00
+  from: <%= Time.zone.local(2025, 12, 24).iso8601 %>
+  to: <%= Time.zone.local(2025, 12, 25).iso8601 %>
   average: 60
   median: 55
   maximum: 120
