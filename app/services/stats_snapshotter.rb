@@ -8,7 +8,7 @@ class StatsSnapshotter
     res = Faraday.get(url, params, headers)
 
     if res.success?
-      Snapshot.create(stats: res.body)
+      Snapshot.create(stats: JSON.parse(res.body))
     else
       Rails.logger.error(res.body)
     end
