@@ -32,7 +32,7 @@ export default class extends Controller {
     let left = barRect.left - chartRect.left + barRect.width / 2 - tipRect.width / 2
     left = Math.max(0, Math.min(left, chartRect.width - tipRect.width))
 
-    const top = barRect.top - chartRect.top - tipRect.height - 8
+    const top = barRect.top - chartRect.top - tipRect.height - 16
 
     this.tooltipTarget.style.left = `${left}px`
     this.tooltipTarget.style.top = `${top}px`
