@@ -1,8 +1,14 @@
 <%
   # stats is an array of [label, average, maximum, median]
   max_value = stats.map { |s| s[2] }.max || 1
-  grid_step = (max_value / 4.0).ceil
-  grid_lines = (1..4).map { |i| i * grid_step }
+
+  raw_step = max_value / 4.0
+  magnitude = 10 ** Math.log10([raw_step, 1].max).floor
+  nice_steps = [1, 2, 2.5, 5, 10].map { |n| n * magnitude }
+  grid_step = nice_steps.find { |s| s >= raw_step } || nice_steps.last
+  grid_count = (max_value.to_f / grid_step).ceil
+  grid_count += 1 if grid_count * grid_step == max_value
+  grid_lines = (1..grid_count).map { |i| (i * grid_step).to_i }
 %>
 
 <div class="chart" data-controller="chart-tooltip">
@@ -23,13 +29,14 @@
         avg_pct = (avg.to_f / grid_lines.last * 100).round(1)
         peak_pct = ((peak - avg).to_f / grid_lines.last * 100).round(1)
       %>
-      <div class="chart-bar-group"
-           data-chart-tooltip-target="bar"
-           data-avg="<%= avg %>"
-           data-max="<%= peak %>"
-           data-median="<%= median %>"
-           data-label="<%= label %>">
-        <div class="chart-bar-stack" style="height: <%= avg_pct + peak_pct %>%">
+      <div class="chart-bar-group">
+        <div class="chart-bar-stack"
+             data-chart-tooltip-target="bar"
+             data-avg="<%= avg %>"
+             data-max="<%= peak %>"
+             data-median="<%= median %>"
+             data-label="<%= label %>"
+             style="height: <%= avg_pct + peak_pct %>%">
           <div class="chart-bar chart-bar--peak" style="height: <%= peak_pct > 0 ? (peak_pct / (avg_pct + peak_pct) * 100).round(1) : 0 %>%"></div>
           <div class="chart-bar chart-bar--avg" style="height: <%= avg_pct > 0 ? (avg_pct / (avg_pct + peak_pct) * 100).round(1) : 0 %>%"></div>
         </div>
@@ -41,14 +48,14 @@
   <div class="chart-tooltip" data-chart-tooltip-target="tooltip" hidden>
     <p class="chart-tooltip-title" data-chart-tooltip-target="title"></p>
     <div class="chart-tooltip-row">
-      <span class="chart-tooltip-dot chart-tooltip-dot--avg"></span>
-      <span class="chart-tooltip-key">Average</span>
-      <span class="chart-tooltip-value" data-chart-tooltip-target="avg"></span>
-    </div>
-    <div class="chart-tooltip-row">
       <span class="chart-tooltip-dot chart-tooltip-dot--peak"></span>
       <span class="chart-tooltip-key">Peak</span>
       <span class="chart-tooltip-value" data-chart-tooltip-target="max"></span>
+    </div>
+    <div class="chart-tooltip-row">
+      <span class="chart-tooltip-dot chart-tooltip-dot--avg"></span>
+      <span class="chart-tooltip-key">Average</span>
+      <span class="chart-tooltip-value" data-chart-tooltip-target="avg"></span>
     </div>
     <div class="chart-tooltip-row">
       <span class="chart-tooltip-dot chart-tooltip-dot--median"></span>
