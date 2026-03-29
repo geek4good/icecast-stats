@@ -5,6 +5,11 @@ export default class extends Controller {
 
   connect() {
     this.hideTooltip = this.hideTooltip.bind(this)
+    this.element.addEventListener("mouseleave", this.hideTooltip)
+  }
+
+  disconnect() {
+    this.element.removeEventListener("mouseleave", this.hideTooltip)
   }
 
   barTargetConnected(bar) {
