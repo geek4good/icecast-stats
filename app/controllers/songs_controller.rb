@@ -46,6 +46,10 @@ class SongsController < ApplicationController
     when "last_month"
       last = Date.current - 1.month
       last.beginning_of_month.beginning_of_day..last.end_of_month.end_of_day
+    when "this_year"
+      Date.current.beginning_of_year.beginning_of_day..Time.current
+    when "all_time"
+      Time.zone.local(2000, 1, 1)..Time.current
     else
       Date.current.beginning_of_week(:monday).beginning_of_day..Time.current
     end
@@ -56,6 +60,8 @@ class SongsController < ApplicationController
     when "this_week" then "This Week"
     when "this_month" then "This Month"
     when "last_month" then (Date.current - 1.month).strftime("%B %Y")
+    when "this_year" then "This Year"
+    when "all_time" then "All Time"
     else "This Week"
     end
   end

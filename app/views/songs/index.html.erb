@@ -4,6 +4,8 @@
   <%= link_to "This Week", songs_path(period: "this_week"), class: "nav-link #{"nav-link--active" if @period == "this_week"}" %>
   <%= link_to "This Month", songs_path(period: "this_month"), class: "nav-link #{"nav-link--active" if @period == "this_month"}" %>
   <%= link_to "Last Month", songs_path(period: "last_month"), class: "nav-link #{"nav-link--active" if @period == "last_month"}" %>
+  <%= link_to "This Year", songs_path(period: "this_year"), class: "nav-link #{"nav-link--active" if @period == "this_year"}" %>
+  <%= link_to "All Time", songs_path(period: "all_time"), class: "nav-link #{"nav-link--active" if @period == "all_time"}" %>
 </div>
 
 <% if @content_breakdown.any? %>
