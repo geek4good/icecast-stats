@@ -35,6 +35,7 @@ class SongsController < ApplicationController
       .limit(25)
 
     @top_ads = plays.ads
+      .where.not(title: SongPlay::AD_TITLES)
       .group(:title)
       .select(
         "title",
