@@ -4,16 +4,14 @@ class SongPlay < ApplicationRecord
   scope :ads, -> { where(category: "ads") }
   scope :for_station, ->(station) { where(station: station) }
 
-  CATEGORY_PATTERNS = {
-    "news" => "BBC World News",
-    "ads" => "SURF RADIO - www.surf.radio"
-  }.freeze
+  NEWS_TITLES = ["BBC World News", "Local and Regional News"].freeze
+  AD_TITLES = ["SURF RADIO - www.surf.radio"].freeze
 
   def self.categorize(title)
-    CATEGORY_PATTERNS.each do |category, pattern|
-      return category if title == pattern
-    end
-    "music"
+    return "news" if NEWS_TITLES.include?(title)
+    return "ads" if AD_TITLES.include?(title)
+    return "music" if title.include?(" - ")
+    "ads"
   end
 
   def self.parse_artist_and_song(title)

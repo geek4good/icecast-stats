@@ -29,11 +29,19 @@ class SongPlayTest < ActiveSupport::TestCase
     assert_equal "news", SongPlay.categorize("BBC World News")
   end
 
+  test "categorize returns news for Local and Regional News" do
+    assert_equal "news", SongPlay.categorize("Local and Regional News")
+  end
+
   test "categorize returns ads for station tagline" do
     assert_equal "ads", SongPlay.categorize("SURF RADIO - www.surf.radio")
   end
 
-  test "categorize returns music for everything else" do
+  test "categorize returns ads for title without artist" do
+    assert_equal "ads", SongPlay.categorize("Some Promo Spot")
+  end
+
+  test "categorize returns music for artist - song format" do
     assert_equal "music", SongPlay.categorize("Little Mix - Sweet Melody")
   end
 

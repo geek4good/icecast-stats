@@ -42,6 +42,17 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Songs — All Time"
   end
 
+  test "index renders most played ads section when ads exist" do
+    SongPlay.create!(
+      title: "Some Promo", artist: nil, song: nil, category: "ads",
+      station: "Surf Radio", started_at: 1.day.ago, ended_at: 1.day.ago + 30.seconds,
+      duration_seconds: 30, snapshot_count: 6
+    )
+    get songs_path(period: "this_week")
+    assert_response :success
+    assert_includes response.body, "Most Played Ads"
+  end
+
   test "period selector includes all period links" do
     get songs_path
     assert_response :success

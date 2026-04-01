@@ -85,6 +85,36 @@
   </section>
 <% end %>
 
+<% if @top_ads.any? %>
+  <section class="chart-card">
+    <header class="chart-header">
+      <h2>Most Played Ads</h2>
+    </header>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>Total Time</th>
+          <th>Plays</th>
+          <th>Avg Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @top_ads.each_with_index do |ad, i| %>
+          <tr>
+            <td><%= i + 1 %></td>
+            <td><%= ad.title %></td>
+            <td><%= ad.total_duration.to_i / 60 %>m <%= ad.total_duration.to_i % 60 %>s</td>
+            <td><%= ad.play_count %></td>
+            <td><%= ad.avg_duration / 60 %>m <%= ad.avg_duration % 60 %>s</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </section>
+<% end %>
+
 <% if @content_breakdown.empty? && @top_songs.empty? %>
   <p>No song data recorded for this period.</p>
 <% end %>

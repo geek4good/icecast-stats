@@ -33,6 +33,17 @@ class SongsController < ApplicationController
       )
       .order("total_duration DESC")
       .limit(25)
+
+    @top_ads = plays.ads
+      .group(:title)
+      .select(
+        "title",
+        "SUM(duration_seconds) AS total_duration",
+        "COUNT(*) AS play_count",
+        "ROUND(AVG(duration_seconds))::int AS avg_duration"
+      )
+      .order("total_duration DESC")
+      .limit(25)
   end
 
   private
