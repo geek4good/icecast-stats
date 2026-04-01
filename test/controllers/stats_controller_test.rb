@@ -89,4 +89,10 @@ class StatsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Surf Radio"
   end
+
+  test "patterns handles stats with nil station" do
+    Stat.create!(from: "2026-01-15 10:00:00", to: "2026-01-15 11:00:00", average: 10, median: 8, maximum: 20, total_time: 600, station: nil)
+    get stats_patterns_path(month: "2026-01")
+    assert_response :success
+  end
 end

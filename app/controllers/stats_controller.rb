@@ -68,7 +68,7 @@ class StatsController < ApplicationController
     local_ts = %("from" AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Bangkok')
     from_time = @month_start.to_time(:utc).iso8601
     to_time = @month_end.to_time(:utc).iso8601
-    time_filter = Stat.sanitize_sql(["WHERE \"from\" >= :from AND \"from\" < :to", { from: from_time, to: to_time }])
+    time_filter = Stat.sanitize_sql(["WHERE \"from\" >= :from AND \"from\" < :to AND station IS NOT NULL", { from: from_time, to: to_time }])
 
     @dow_averages = Stat.connection.select_all(<<~SQL).to_a
       SELECT
