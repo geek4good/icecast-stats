@@ -1,0 +1,8 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+surf_radio_outage:
+  station: "Surf Radio"
+  detected_at: <%= Time.zone.local(2025, 12, 25, 10, 0, 0).iso8601 %>
+  previous_stream_start: "2025-12-25T08:00:00+0000"
+  new_stream_start: "2025-12-25T09:55:00+0000"
+  estimated_downtime_seconds: 6900

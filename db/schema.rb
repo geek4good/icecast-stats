@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_01_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_01_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -52,5 +52,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_000002) do
     t.datetime "updated_at", null: false
     t.index ["station", "from", "to"], name: "index_listener_stats_on_station_and_from_and_to", unique: true
     t.index ["station"], name: "index_listener_stats_on_station"
+  end
+
+  create_table "stream_outages", force: :cascade do |t|
+    t.text "station", null: false
+    t.datetime "detected_at", null: false
+    t.text "previous_stream_start"
+    t.text "new_stream_start"
+    t.integer "estimated_downtime_seconds"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["station", "detected_at"], name: "index_stream_outages_on_station_and_detected_at"
   end
 end
