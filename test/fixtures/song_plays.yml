@@ -1,0 +1,45 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+sweet_melody:
+  title: "Little Mix - Sweet Melody"
+  artist: "Little Mix"
+  song: "Sweet Melody"
+  category: "music"
+  station: "Surf Radio"
+  started_at: <%= Time.zone.local(2025, 12, 25, 10, 0, 0).iso8601 %>
+  ended_at: <%= Time.zone.local(2025, 12, 25, 10, 3, 30).iso8601 %>
+  duration_seconds: 210
+  snapshot_count: 42
+
+bbc_news:
+  title: "BBC World News"
+  artist:
+  song:
+  category: "news"
+  station: "Surf Radio"
+  started_at: <%= Time.zone.local(2025, 12, 25, 10, 3, 30).iso8601 %>
+  ended_at: <%= Time.zone.local(2025, 12, 25, 10, 6, 30).iso8601 %>
+  duration_seconds: 180
+  snapshot_count: 36
+
+ad_break:
+  title: "SURF RADIO - www.surf.radio"
+  artist:
+  song:
+  category: "ads"
+  station: "Surf Radio"
+  started_at: <%= Time.zone.local(2025, 12, 25, 10, 6, 30).iso8601 %>
+  ended_at: <%= Time.zone.local(2025, 12, 25, 10, 7, 0).iso8601 %>
+  duration_seconds: 30
+  snapshot_count: 6
+
+blinding_lights:
+  title: "The Weeknd - Blinding Lights"
+  artist: "The Weeknd"
+  song: "Blinding Lights"
+  category: "music"
+  station: "Surf Radio"
+  started_at: <%= Time.zone.local(2025, 12, 25, 10, 7, 0).iso8601 %>
+  ended_at: <%= Time.zone.local(2025, 12, 25, 10, 10, 20).iso8601 %>
+  duration_seconds: 200
+  snapshot_count: 40

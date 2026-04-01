@@ -1,0 +1,88 @@
+<h1>Songs — <%= @period_label %></h1>
+
+<div class="period-selector">
+  <%= link_to "This Week", songs_path(period: "this_week"), class: "nav-link #{"nav-link--active" if @period == "this_week"}" %>
+  <%= link_to "This Month", songs_path(period: "this_month"), class: "nav-link #{"nav-link--active" if @period == "this_month"}" %>
+  <%= link_to "Last Month", songs_path(period: "last_month"), class: "nav-link #{"nav-link--active" if @period == "last_month"}" %>
+</div>
+
+<% if @content_breakdown.any? %>
+  <section class="chart-card">
+    <header class="chart-header">
+      <h2>Content Breakdown</h2>
+      <p class="chart-subtitle">Minutes by category</p>
+    </header>
+    <div class="summary-cards">
+      <% @content_breakdown.each do |category, minutes| %>
+        <div class="summary-card">
+          <h3><%= category.capitalize %></h3>
+          <p><strong><%= number_with_delimiter(minutes) %></strong> min</p>
+        </div>
+      <% end %>
+    </div>
+  </section>
+<% end %>
+
+<% if @top_songs.any? %>
+  <section class="chart-card">
+    <header class="chart-header">
+      <h2>Most Played Songs</h2>
+    </header>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>Artist</th>
+          <th>Total Time</th>
+          <th>Plays</th>
+          <th>Avg Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @top_songs.each_with_index do |song, i| %>
+          <tr>
+            <td><%= i + 1 %></td>
+            <td><%= song.title %></td>
+            <td><%= song.artist || "–" %></td>
+            <td><%= song.total_duration.to_i / 60 %>m <%= song.total_duration.to_i % 60 %>s</td>
+            <td><%= song.play_count %></td>
+            <td><%= song.avg_duration / 60 %>m <%= song.avg_duration % 60 %>s</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </section>
+<% end %>
+
+<% if @top_artists.any? %>
+  <section class="chart-card">
+    <header class="chart-header">
+      <h2>Top Artists</h2>
+    </header>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Artist</th>
+          <th>Total Time</th>
+          <th>Songs Played</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @top_artists.each_with_index do |artist, i| %>
+          <tr>
+            <td><%= i + 1 %></td>
+            <td><%= artist.artist %></td>
+            <td><%= artist.total_duration.to_i / 60 %>m <%= artist.total_duration.to_i % 60 %>s</td>
+            <td><%= artist.play_count %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </section>
+<% end %>
+
+<% if @content_breakdown.empty? && @top_songs.empty? %>
+  <p>No song data recorded for this period.</p>
+<% end %>

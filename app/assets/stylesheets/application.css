@@ -274,3 +274,62 @@ h1 {
   color: var(--color-muted);
 }
 
+.summary-cards {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.summary-card {
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  min-width: 8rem;
+}
+
+.summary-card h3 {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.summary-card p {
+  font-size: 0.9375rem;
+}
+
+/* ---- Period selector ---- */
+
+.period-selector {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ---- Data tables ---- */
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.data-table th {
+  color: var(--color-muted);
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.data-table td {
+  font-variant-numeric: tabular-nums;
+}
+
