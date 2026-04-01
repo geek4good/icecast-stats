@@ -1,4 +1,4 @@
-class ListenerStatsCalculator
+class StatsCalculator
   attr_reader :from, :to
 
   def initialize(from:, to:)
@@ -7,17 +7,18 @@ class ListenerStatsCalculator
   end
 
   def persist_stats
-    return if ListenerStat.exists?(from:, to:)
+    return if Stat.exists?(from:, to:)
 
     calculate_stats.map do |row|
-      ListenerStat.create(
+      Stat.create(
         from:,
         to:,
         station: row["station"],
         average: row["average"],
         median: row["median"],
         maximum: row["maximum"],
-        total_time: row["total_time"]
+        total_time: row["total_time"],
+        snapshot_count: row["snapshot_count"]
       )
     end
   end
@@ -29,7 +30,8 @@ class ListenerStatsCalculator
         ROUND(AVG((source->>'listeners')::int))::int AS average,
         ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY (source->>'listeners')::int))::int AS median,
         MAX((source->>'listeners')::int) AS maximum,
-        ROUND(AVG((source->>'listeners')::int) * (EXTRACT(EPOCH FROM (CAST(:to AS timestamp) - CAST(:from AS timestamp))) / 60))::int AS total_time
+        ROUND(AVG((source->>'listeners')::int) * (EXTRACT(EPOCH FROM (CAST(:to AS timestamp) - CAST(:from AS timestamp))) / 60))::int AS total_time,
+        COUNT(*) AS snapshot_count
       FROM
         snapshots,
         jsonb_array_elements(

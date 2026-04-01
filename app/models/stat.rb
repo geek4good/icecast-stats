@@ -1,4 +1,4 @@
-class ListenerStat < ApplicationRecord
+class Stat < ApplicationRecord
   scope :surf_radio, -> { where(station: "Surf Radio") }
   scope :talay_fm, -> { where(station: "Talay FM") }
 

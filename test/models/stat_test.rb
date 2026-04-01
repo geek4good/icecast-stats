@@ -1,8 +1,8 @@
 require "test_helper"
 
-class ListenerStatTest < ActiveSupport::TestCase
+class StatTest < ActiveSupport::TestCase
   test "surf_radio scope filters by station" do
-    results = ListenerStat.surf_radio
+    results = Stat.surf_radio
     assert_equal 2, results.count
     results.each do |stat|
       assert_equal "Surf Radio", stat.station
@@ -10,14 +10,14 @@ class ListenerStatTest < ActiveSupport::TestCase
   end
 
   test "talay_fm scope filters by station" do
-    results = ListenerStat.talay_fm
+    results = Stat.talay_fm
     assert_equal 1, results.count
     assert_equal "Talay FM", results.first.station
   end
 
   test "on scope filters by date range" do
     date = Date.new(2025, 12, 25)
-    results = ListenerStat.on(date)
+    results = Stat.on(date)
     assert_equal 2, results.count
 
     results.each do |stat|
@@ -28,14 +28,14 @@ class ListenerStatTest < ActiveSupport::TestCase
 
   test "on scope does not return stats from other dates" do
     date = Date.new(2025, 12, 24)
-    results = ListenerStat.on(date)
+    results = Stat.on(date)
     assert_equal 1, results.count
     assert_equal "Surf Radio", results.first.station
   end
 
   test "unique index on station, from and to prevents duplicates" do
-    existing = listener_stats(:surf_radio_today)
-    duplicate = ListenerStat.new(
+    existing = stats(:surf_radio_today)
+    duplicate = Stat.new(
       station: existing.station,
       from: existing.from,
       to: existing.to,
@@ -48,8 +48,8 @@ class ListenerStatTest < ActiveSupport::TestCase
   end
 
   test "allows same time range for different stations" do
-    existing = listener_stats(:surf_radio_today)
-    different_station = ListenerStat.new(
+    existing = stats(:surf_radio_today)
+    different_station = Stat.new(
       station: "Different Station",
       from: existing.from,
       to: existing.to,

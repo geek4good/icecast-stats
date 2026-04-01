@@ -1,6 +1,6 @@
 # Run in Rails console: load "scripts/backfill_listener_stats.rb"
 #
-# Generates ListenerStat records for every hour that has snapshots
+# Generates Stat records for every hour that has snapshots
 # but no stats yet. Safe to re-run — skips hours already calculated.
 
 first = Snapshot.minimum(:created_at)
@@ -23,7 +23,7 @@ puts "Backfilling from #{hour_start} to #{hour_end} (#{total} hours)..."
 current = hour_start
 while current < hour_end
   processed += 1
-  results = ListenerStatsCalculator.new(from: current, to: current + 1.hour).persist_stats
+  results = StatsCalculator.new(from: current, to: current + 1.hour).persist_stats
   created += results&.size || 0
 
   if processed % 100 == 0

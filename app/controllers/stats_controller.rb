@@ -5,8 +5,8 @@ class StatsController < ApplicationController
     day_start = Time.zone.local(@date.year, @date.month, @date.day)
     day_end = day_start + 1.day
 
-    @surf_radio_stats = hourly_stats(ListenerStat.surf_radio, day_start, day_end)
-    @talay_fm_stats = hourly_stats(ListenerStat.talay_fm, day_start, day_end)
+    @surf_radio_stats = hourly_stats(Stat.surf_radio, day_start, day_end)
+    @talay_fm_stats = hourly_stats(Stat.talay_fm, day_start, day_end)
     @date_label = @date.strftime("%A, %-d %B %Y")
   end
 
