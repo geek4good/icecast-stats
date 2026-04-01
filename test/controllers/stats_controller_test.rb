@@ -46,4 +46,13 @@ class StatsControllerTest < ActionDispatch::IntegrationTest
     get stats_monthly_path(month: "2025-12")
     assert_response :success
   end
+
+  test "patterns route resolves to stats#patterns" do
+    assert_recognizes({controller: "stats", action: "patterns"}, "/stats/patterns")
+  end
+
+  test "patterns renders successfully" do
+    get stats_patterns_path
+    assert_response :success
+  end
 end

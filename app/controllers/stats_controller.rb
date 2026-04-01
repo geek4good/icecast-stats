@@ -52,6 +52,58 @@ class StatsController < ApplicationController
     @talay_fm_summary = period_summary(Stat.talay_fm, month_start_time, month_end_time)
   end
 
+  def patterns
+    @dow_averages = Stat.connection.select_all(<<~SQL).to_a
+      SELECT
+        EXTRACT(DOW FROM "from") AS dow,
+        ROUND(AVG(average))::int AS avg_listeners,
+        ROUND(AVG(maximum))::int AS avg_peak
+      FROM stats
+      GROUP BY EXTRACT(DOW FROM "from")
+      ORDER BY dow
+    SQL
+
+    @heatmap = Stat.connection.select_all(<<~SQL).to_a
+      SELECT
+        EXTRACT(DOW FROM "from") AS dow,
+        EXTRACT(HOUR FROM "from") AS hour,
+        ROUND(AVG(average))::int AS avg_listeners
+      FROM stats
+      GROUP BY EXTRACT(DOW FROM "from"), EXTRACT(HOUR FROM "from")
+      ORDER BY dow, hour
+    SQL
+
+    @weekend_weekday = Stat.connection.select_all(<<~SQL).to_a
+      SELECT
+        CASE WHEN EXTRACT(DOW FROM "from") IN (0, 6) THEN 'weekend' ELSE 'weekday' END AS period,
+        ROUND(AVG(average))::int AS avg_listeners,
+        ROUND(AVG(maximum))::int AS avg_peak
+      FROM stats
+      GROUP BY period
+      ORDER BY period DESC
+    SQL
+
+    @station_comparison = Stat.connection.select_all(<<~SQL).to_a
+      SELECT
+        station,
+        EXTRACT(DOW FROM "from") AS dow,
+        ROUND(AVG(average))::int AS avg_listeners
+      FROM stats
+      GROUP BY station, EXTRACT(DOW FROM "from")
+      ORDER BY station, dow
+    SQL
+
+    @growth_trends = Stat.connection.select_all(<<~SQL).to_a
+      SELECT
+        station,
+        DATE_TRUNC('week', "from") AS week,
+        ROUND(AVG(average))::int AS avg_listeners
+      FROM stats
+      GROUP BY station, DATE_TRUNC('week', "from")
+      ORDER BY station, week
+    SQL
+  end
+
   private
 
   def hourly_stats(scope, day_start, day_end)

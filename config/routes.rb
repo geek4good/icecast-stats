@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   get "stats/index"
   get "stats/weekly"
   get "stats/monthly"
+  get "stats/patterns"
   get "songs", to: "songs#index"
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
