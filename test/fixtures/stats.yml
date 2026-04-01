@@ -74,3 +74,46 @@ talay_fm_sat_10:
   median: 240
   maximum: 450
   total_time: 15000
+
+# Daily stats for weekly/monthly views - Mon Dec 22 2025
+surf_radio_daily_mon:
+  station: "Surf Radio"
+  from: <%= Time.zone.local(2025, 12, 22).iso8601 %>
+  to: <%= Time.zone.local(2025, 12, 23).iso8601 %>
+  average: 48
+  median: 44
+  maximum: 90
+  total_time: 5700
+  snapshot_count: 2
+
+# Tue Dec 23 2025
+surf_radio_daily_tue:
+  station: "Surf Radio"
+  from: <%= Time.zone.local(2025, 12, 23).iso8601 %>
+  to: <%= Time.zone.local(2025, 12, 24).iso8601 %>
+  average: 45
+  median: 42
+  maximum: 85
+  total_time: 2700
+  snapshot_count: 1
+
+# Sat Dec 27 2025 (weekend)
+surf_radio_daily_sat:
+  station: "Surf Radio"
+  from: <%= Time.zone.local(2025, 12, 27).iso8601 %>
+  to: <%= Time.zone.local(2025, 12, 28).iso8601 %>
+  average: 70
+  median: 65
+  maximum: 130
+  total_time: 4200
+  snapshot_count: 1
+
+talay_fm_daily_sat:
+  station: "Talay FM"
+  from: <%= Time.zone.local(2025, 12, 27).iso8601 %>
+  to: <%= Time.zone.local(2025, 12, 28).iso8601 %>
+  average: 250
+  median: 240
+  maximum: 450
+  total_time: 15000
+  snapshot_count: 1

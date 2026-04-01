@@ -24,11 +24,11 @@ class StatsController < ApplicationController
     week_start_time = Time.zone.local(@week_start.year, @week_start.month, @week_start.day)
     week_end_time = Time.zone.local(@week_end.year, @week_end.month, @week_end.day)
 
-    @surf_radio_stats = daily_stats(Stat.surf_radio, week_start_time, week_end_time, @week_start)
-    @talay_fm_stats = daily_stats(Stat.talay_fm, week_start_time, week_end_time, @week_start)
+    @surf_radio_stats = fetch_daily_stats(Stat.daily.surf_radio, week_start_time, week_end_time, @week_start)
+    @talay_fm_stats = fetch_daily_stats(Stat.daily.talay_fm, week_start_time, week_end_time, @week_start)
 
-    @surf_radio_summary = period_summary(Stat.surf_radio, week_start_time, week_end_time)
-    @talay_fm_summary = period_summary(Stat.talay_fm, week_start_time, week_end_time)
+    @surf_radio_summary = daily_period_summary(Stat.daily.surf_radio, week_start_time, week_end_time)
+    @talay_fm_summary = daily_period_summary(Stat.daily.talay_fm, week_start_time, week_end_time)
   end
 
   def monthly
@@ -45,11 +45,11 @@ class StatsController < ApplicationController
     month_start_time = Time.zone.local(@month_start.year, @month_start.month, @month_start.day)
     month_end_time = Time.zone.local(@month_end.year, @month_end.month, @month_end.day)
 
-    @surf_radio_stats = daily_stats(Stat.surf_radio, month_start_time, month_end_time, @month_start)
-    @talay_fm_stats = daily_stats(Stat.talay_fm, month_start_time, month_end_time, @month_start)
+    @surf_radio_stats = fetch_daily_stats(Stat.daily.surf_radio, month_start_time, month_end_time, @month_start)
+    @talay_fm_stats = fetch_daily_stats(Stat.daily.talay_fm, month_start_time, month_end_time, @month_start)
 
-    @surf_radio_summary = period_summary(Stat.surf_radio, month_start_time, month_end_time)
-    @talay_fm_summary = period_summary(Stat.talay_fm, month_start_time, month_end_time)
+    @surf_radio_summary = daily_period_summary(Stat.daily.surf_radio, month_start_time, month_end_time)
+    @talay_fm_summary = daily_period_summary(Stat.daily.talay_fm, month_start_time, month_end_time)
   end
 
   def patterns
@@ -132,27 +132,25 @@ class StatsController < ApplicationController
       end
   end
 
-  def daily_stats(scope, period_start, period_end, date_start)
+  def fetch_daily_stats(scope, period_start, period_end, date_start)
     rows = scope
       .where(from: period_start...period_end)
-      .group_by { |s| s.from.in_time_zone.to_date }
+      .index_by { |s| s.from.in_time_zone.to_date }
 
-    days = (date_start...(date_start + ((period_end - period_start) / 1.day).to_i.days)).to_a
+    num_days = ((period_end - period_start) / 1.day).to_i
+    days = (date_start...(date_start + num_days.days)).to_a
 
     days.map do |date|
-      day_stats = rows[date] || []
-      if day_stats.any?
-        avg = (day_stats.sum(&:average) / day_stats.size.to_f).round
-        peak = day_stats.map(&:maximum).max
-        median = (day_stats.sum(&:median) / day_stats.size.to_f).round
-        [date.strftime("%-d"), avg, peak, median]
+      stat = rows[date]
+      if stat
+        [date.strftime("%-d"), stat.average, stat.maximum, stat.median]
       else
         [date.strftime("%-d"), 0, 0, 0]
       end
     end
   end
 
-  def period_summary(scope, period_start, period_end)
+  def daily_period_summary(scope, period_start, period_end)
     stats = scope.where(from: period_start...period_end)
     return nil if stats.empty?
 
@@ -160,7 +158,7 @@ class StatsController < ApplicationController
       avg: (stats.average(:average) || 0).round,
       peak: stats.maximum(:maximum) || 0,
       median: (stats.average(:median) || 0).round,
-      hours: stats.count
+      hours: stats.sum(:snapshot_count)
     }
   end
 end
