@@ -53,55 +53,71 @@ class StatsController < ApplicationController
   end
 
   def patterns
+    if params[:month].present?
+      year, month = params[:month].split("-").map(&:to_i)
+      @month_start = Date.new(year, month, 1)
+    else
+      @month_start = (Date.current - 1.month).beginning_of_month
+    end
+
+    @month_end = @month_start.next_month
+    @prev_month = (@month_start - 1.month).strftime("%Y-%m")
+    @next_month = @month_end.strftime("%Y-%m")
+    @month_label = @month_start.strftime("%B %Y")
+
+    local_ts = %("from" AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Bangkok')
+    from_time = @month_start.to_time(:utc).iso8601
+    to_time = @month_end.to_time(:utc).iso8601
+    time_filter = Stat.sanitize_sql(["WHERE \"from\" >= :from AND \"from\" < :to", { from: from_time, to: to_time }])
+
     @dow_averages = Stat.connection.select_all(<<~SQL).to_a
       SELECT
-        EXTRACT(DOW FROM "from") AS dow,
+        station,
+        EXTRACT(DOW FROM #{local_ts}) AS dow,
         ROUND(AVG(average))::int AS avg_listeners,
         ROUND(AVG(maximum))::int AS avg_peak
       FROM stats
-      GROUP BY EXTRACT(DOW FROM "from")
-      ORDER BY dow
+      #{time_filter}
+      GROUP BY station, EXTRACT(DOW FROM #{local_ts})
+      ORDER BY station, dow
     SQL
 
     @heatmap = Stat.connection.select_all(<<~SQL).to_a
       SELECT
-        EXTRACT(DOW FROM "from") AS dow,
-        EXTRACT(HOUR FROM "from") AS hour,
+        station,
+        EXTRACT(DOW FROM #{local_ts}) AS dow,
+        EXTRACT(HOUR FROM #{local_ts}) AS hour,
         ROUND(AVG(average))::int AS avg_listeners
       FROM stats
-      GROUP BY EXTRACT(DOW FROM "from"), EXTRACT(HOUR FROM "from")
-      ORDER BY dow, hour
+      #{time_filter}
+      GROUP BY station, EXTRACT(DOW FROM #{local_ts}), EXTRACT(HOUR FROM #{local_ts})
+      ORDER BY station, dow, hour
     SQL
 
     @weekend_weekday = Stat.connection.select_all(<<~SQL).to_a
       SELECT
-        CASE WHEN EXTRACT(DOW FROM "from") IN (0, 6) THEN 'weekend' ELSE 'weekday' END AS period,
+        station,
+        CASE WHEN EXTRACT(DOW FROM #{local_ts}) IN (0, 6) THEN 'weekend' ELSE 'weekday' END AS period,
         ROUND(AVG(average))::int AS avg_listeners,
         ROUND(AVG(maximum))::int AS avg_peak
       FROM stats
-      GROUP BY period
-      ORDER BY period DESC
+      #{time_filter}
+      GROUP BY station, period
+      ORDER BY station, period DESC
     SQL
 
     @station_comparison = Stat.connection.select_all(<<~SQL).to_a
       SELECT
         station,
-        EXTRACT(DOW FROM "from") AS dow,
+        EXTRACT(DOW FROM #{local_ts}) AS dow,
         ROUND(AVG(average))::int AS avg_listeners
       FROM stats
-      GROUP BY station, EXTRACT(DOW FROM "from")
+      #{time_filter}
+      GROUP BY station, EXTRACT(DOW FROM #{local_ts})
       ORDER BY station, dow
     SQL
 
-    @growth_trends = Stat.connection.select_all(<<~SQL).to_a
-      SELECT
-        station,
-        DATE_TRUNC('week', "from") AS week,
-        ROUND(AVG(average))::int AS avg_listeners
-      FROM stats
-      GROUP BY station, DATE_TRUNC('week', "from")
-      ORDER BY station, week
-    SQL
+    @stations = (@dow_averages.map { |r| r["station"] } | @heatmap.map { |r| r["station"] }).uniq.sort
   end
 
   private

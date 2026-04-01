@@ -1,82 +1,97 @@
-<%
-  day_names = %w[Sun Mon Tue Wed Thu Fri Sat]
-  heatmap_data = {}
-  heatmap_max = 1
-  @heatmap.each do |row|
-    key = [row["dow"].to_i, row["hour"].to_i]
-    val = row["avg_listeners"].to_i
-    heatmap_data[key] = val
-    heatmap_max = val if val > heatmap_max
-  end
-%>
+<% day_names = %w[Sun Mon Tue Wed Thu Fri Sat] %>
 
 <h1>Listener Patterns</h1>
 
-<% if @dow_averages.any? %>
-  <section class="chart-card">
-    <header class="chart-header">
-      <h2>Day-of-Week Averages</h2>
-      <p class="chart-subtitle">Average listeners by day</p>
-    </header>
-    <%
-      dow_chart = @dow_averages.map do |row|
-        [day_names[row["dow"].to_i], row["avg_listeners"].to_i, row["avg_peak"].to_i, row["avg_listeners"].to_i]
-      end
-    %>
-    <%= render partial: "stats/bar_chart", locals: { stats: dow_chart } %>
-  </section>
-<% end %>
+<nav class="month-nav">
+  <%= link_to "‹", stats_patterns_path(month: @prev_month), class: "nav-link" %>
+  <span class="month-label"><%= @month_label %></span>
+  <% if @month_end <= Date.current %>
+    <%= link_to "›", stats_patterns_path(month: @next_month), class: "nav-link" %>
+  <% end %>
+</nav>
 
-<% if @heatmap.any? %>
-  <section class="chart-card">
-    <header class="chart-header">
-      <h2>Hour x Day Heatmap</h2>
-      <p class="chart-subtitle">Average listeners (darker = more)</p>
-    </header>
-    <div class="heatmap-container">
-      <table class="heatmap">
-        <thead>
-          <tr>
-            <th></th>
-            <% (0..23).each do |h| %>
-              <th><%= h %></th>
-            <% end %>
-          </tr>
-        </thead>
-        <tbody>
-          <% (0..6).each do |dow| %>
+<% @stations.each do |station| %>
+  <h2><%= station %></h2>
+
+  <% station_dow = @dow_averages.select { |r| r["station"] == station } %>
+  <% if station_dow.any? %>
+    <section class="chart-card">
+      <header class="chart-header">
+        <h3>Day-of-Week Averages</h3>
+        <p class="chart-subtitle">Average listeners by day</p>
+      </header>
+      <%
+        dow_chart = station_dow.map do |row|
+          [day_names[row["dow"].to_i], row["avg_listeners"].to_i, row["avg_peak"].to_i, row["avg_listeners"].to_i]
+        end
+      %>
+      <%= render partial: "stats/bar_chart", locals: { stats: dow_chart } %>
+    </section>
+  <% end %>
+
+  <%
+    station_heatmap = @heatmap.select { |r| r["station"] == station }
+    heatmap_data = {}
+    heatmap_max = 1
+    station_heatmap.each do |row|
+      key = [row["dow"].to_i, row["hour"].to_i]
+      val = row["avg_listeners"].to_i
+      heatmap_data[key] = val
+      heatmap_max = val if val > heatmap_max
+    end
+  %>
+  <% if station_heatmap.any? %>
+    <section class="chart-card">
+      <header class="chart-header">
+        <h3>Hour x Day Heatmap</h3>
+        <p class="chart-subtitle">Average listeners (darker = more)</p>
+      </header>
+      <div class="heatmap-container">
+        <table class="heatmap">
+          <thead>
             <tr>
-              <td class="heatmap-day"><%= day_names[dow] %></td>
-              <% (0..23).each do |hour| %>
-                <% val = heatmap_data[[dow, hour]] || 0 %>
-                <% intensity = (val.to_f / heatmap_max * 100).round %>
-                <td class="heatmap-cell" style="--intensity: <%= intensity %>%" title="<%= day_names[dow] %> <%= hour %>:00 — <%= val %> avg listeners">
-                  <span class="heatmap-value"><%= val %></span>
-                </td>
+              <th></th>
+              <% (0..23).each do |h| %>
+                <th><%= h %></th>
               <% end %>
             </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  </section>
-<% end %>
+          </thead>
+          <tbody>
+            <% (0..6).each do |dow| %>
+              <tr>
+                <td class="heatmap-day"><%= day_names[dow] %></td>
+                <% (0..23).each do |hour| %>
+                  <% val = heatmap_data[[dow, hour]] || 0 %>
+                  <% intensity = (val.to_f / heatmap_max * 100).round %>
+                  <td class="heatmap-cell" style="--intensity: <%= intensity %>%" title="<%= day_names[dow] %> <%= hour %>:00 — <%= val %> avg listeners">
+                    <span class="heatmap-value"><%= val %></span>
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  <% end %>
 
-<% if @weekend_weekday.any? %>
-  <section class="chart-card">
-    <header class="chart-header">
-      <h2>Weekend vs Weekday</h2>
-    </header>
-    <div class="summary-cards">
-      <% @weekend_weekday.each do |row| %>
-        <div class="summary-card">
-          <h3><%= row["period"].capitalize %></h3>
-          <p>Avg: <strong><%= row["avg_listeners"] %></strong></p>
-          <p>Peak: <strong><%= row["avg_peak"] %></strong></p>
-        </div>
-      <% end %>
-    </div>
-  </section>
+  <% station_ww = @weekend_weekday.select { |r| r["station"] == station } %>
+  <% if station_ww.any? %>
+    <section class="chart-card">
+      <header class="chart-header">
+        <h3>Weekend vs Weekday</h3>
+      </header>
+      <div class="summary-cards">
+        <% station_ww.each do |row| %>
+          <div class="summary-card">
+            <h3><%= row["period"].capitalize %></h3>
+            <p>Avg: <strong><%= row["avg_listeners"] %></strong></p>
+            <p>Peak: <strong><%= row["avg_peak"] %></strong></p>
+          </div>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
 <% end %>
 
 <% if @station_comparison.any? %>
@@ -89,8 +104,8 @@
       <thead>
         <tr>
           <th>Day</th>
-          <% stations = @station_comparison.map { |r| r["station"] }.uniq %>
-          <% stations.each do |station| %>
+          <% comp_stations = @station_comparison.map { |r| r["station"] }.uniq %>
+          <% comp_stations.each do |station| %>
             <th><%= station %></th>
           <% end %>
         </tr>
@@ -99,40 +114,8 @@
         <% (0..6).each do |dow| %>
           <tr>
             <td><%= day_names[dow] %></td>
-            <% stations.each do |station| %>
+            <% comp_stations.each do |station| %>
               <% row = @station_comparison.find { |r| r["station"] == station && r["dow"].to_i == dow } %>
-              <td><%= row ? row["avg_listeners"] : "–" %></td>
-            <% end %>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </section>
-<% end %>
-
-<% if @growth_trends.any? %>
-  <section class="chart-card">
-    <header class="chart-header">
-      <h2>Growth Trends</h2>
-      <p class="chart-subtitle">Weekly rolling average</p>
-    </header>
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Week</th>
-          <% trend_stations = @growth_trends.map { |r| r["station"] }.uniq %>
-          <% trend_stations.each do |station| %>
-            <th><%= station %></th>
-          <% end %>
-        </tr>
-      </thead>
-      <tbody>
-        <% weeks = @growth_trends.map { |r| r["week"] }.uniq.sort %>
-        <% weeks.each do |week| %>
-          <tr>
-            <td><%= week.to_date.strftime("%-d %b %Y") %></td>
-            <% trend_stations.each do |station| %>
-              <% row = @growth_trends.find { |r| r["station"] == station && r["week"] == week } %>
               <td><%= row ? row["avg_listeners"] : "–" %></td>
             <% end %>
           </tr>

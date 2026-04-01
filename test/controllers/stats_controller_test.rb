@@ -55,4 +55,38 @@ class StatsControllerTest < ActionDispatch::IntegrationTest
     get stats_patterns_path
     assert_response :success
   end
+
+  test "patterns accepts month param" do
+    get stats_patterns_path(month: "2025-12")
+    assert_response :success
+  end
+
+  test "patterns defaults to previous month" do
+    get stats_patterns_path
+    assert_response :success
+    expected_month = (Date.current - 1.month).beginning_of_month.strftime("%B %Y")
+    assert_includes response.body, expected_month
+  end
+
+  test "patterns shows month navigation" do
+    get stats_patterns_path(month: "2025-12")
+    assert_response :success
+    assert_includes response.body, "December 2025"
+    assert_includes response.body, "month=2025-11"
+    assert_includes response.body, "month=2026-01"
+  end
+
+  test "patterns hides next link when month is current or future" do
+    current_month = Date.current.strftime("%Y-%m")
+    get stats_patterns_path(month: current_month)
+    assert_response :success
+    next_month = Date.current.next_month.strftime("%Y-%m")
+    assert_not_includes response.body, "month=#{next_month}"
+  end
+
+  test "patterns includes station sections" do
+    get stats_patterns_path(month: "2025-12")
+    assert_response :success
+    assert_includes response.body, "Surf Radio"
+  end
 end
