@@ -3,7 +3,7 @@ require "test_helper"
 class StatTest < ActiveSupport::TestCase
   test "surf_radio scope filters by station" do
     results = Stat.surf_radio
-    assert_equal 2, results.count
+    assert_equal 6, results.count
     results.each do |stat|
       assert_equal "Surf Radio", stat.station
     end
@@ -11,7 +11,7 @@ class StatTest < ActiveSupport::TestCase
 
   test "talay_fm scope filters by station" do
     results = Stat.talay_fm
-    assert_equal 1, results.count
+    assert_equal 2, results.count
     assert_equal "Talay FM", results.first.station
   end
 

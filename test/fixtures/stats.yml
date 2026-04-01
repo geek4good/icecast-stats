@@ -26,3 +26,51 @@ surf_radio_yesterday:
   median: 55
   maximum: 120
   total_time: 86400
+
+# Hourly stats for weekly/monthly testing - Mon Dec 22 2025
+surf_radio_mon_10:
+  station: "Surf Radio"
+  from: <%= Time.zone.local(2025, 12, 22, 10).iso8601 %>
+  to: <%= Time.zone.local(2025, 12, 22, 11).iso8601 %>
+  average: 40
+  median: 38
+  maximum: 80
+  total_time: 2400
+
+surf_radio_mon_11:
+  station: "Surf Radio"
+  from: <%= Time.zone.local(2025, 12, 22, 11).iso8601 %>
+  to: <%= Time.zone.local(2025, 12, 22, 12).iso8601 %>
+  average: 55
+  median: 50
+  maximum: 90
+  total_time: 3300
+
+# Tue Dec 23 2025
+surf_radio_tue_10:
+  station: "Surf Radio"
+  from: <%= Time.zone.local(2025, 12, 23, 10).iso8601 %>
+  to: <%= Time.zone.local(2025, 12, 23, 11).iso8601 %>
+  average: 45
+  median: 42
+  maximum: 85
+  total_time: 2700
+
+# Sat Dec 27 2025 (weekend)
+surf_radio_sat_10:
+  station: "Surf Radio"
+  from: <%= Time.zone.local(2025, 12, 27, 10).iso8601 %>
+  to: <%= Time.zone.local(2025, 12, 27, 11).iso8601 %>
+  average: 70
+  median: 65
+  maximum: 130
+  total_time: 4200
+
+talay_fm_sat_10:
+  station: "Talay FM"
+  from: <%= Time.zone.local(2025, 12, 27, 10).iso8601 %>
+  to: <%= Time.zone.local(2025, 12, 27, 11).iso8601 %>
+  average: 250
+  median: 240
+  maximum: 450
+  total_time: 15000

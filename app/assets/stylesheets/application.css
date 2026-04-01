@@ -238,3 +238,39 @@ h1 {
 .chart-legend-dot--avg  { background: var(--color-avg); }
 .chart-legend-dot--peak { background: var(--color-peak); }
 
+/* ---- Navigation ---- */
+
+.main-nav {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.75rem;
+}
+
+.nav-link {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  text-decoration: none;
+  padding: 0.25rem 0;
+}
+
+.nav-link:hover {
+  color: var(--color-text);
+}
+
+.nav-link--active {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* ---- Summary ---- */
+
+.summary-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+

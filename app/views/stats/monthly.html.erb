@@ -1,0 +1,39 @@
+<h1><%= @month_label %> (ICT, UTC+7)</h1>
+
+<% if @surf_radio_stats.any? { |s| s[1] > 0 } %>
+  <section class="chart-card">
+    <header class="chart-header">
+      <h2>Surf Radio</h2>
+      <p class="chart-subtitle">Daily averages</p>
+    </header>
+    <%= render partial: "stats/bar_chart", locals: { stats: @surf_radio_stats } %>
+    <% if @surf_radio_summary %>
+      <div class="summary-row">
+        <span>Avg: <strong><%= @surf_radio_summary[:avg] %></strong></span>
+        <span>Peak: <strong><%= @surf_radio_summary[:peak] %></strong></span>
+        <span>Hours: <strong><%= @surf_radio_summary[:hours] %></strong></span>
+      </div>
+    <% end %>
+  </section>
+<% end %>
+
+<% if @talay_fm_stats.any? { |s| s[1] > 0 } %>
+  <section class="chart-card">
+    <header class="chart-header">
+      <h2>Talay FM</h2>
+      <p class="chart-subtitle">Daily averages</p>
+    </header>
+    <%= render partial: "stats/bar_chart", locals: { stats: @talay_fm_stats } %>
+    <% if @talay_fm_summary %>
+      <div class="summary-row">
+        <span>Avg: <strong><%= @talay_fm_summary[:avg] %></strong></span>
+        <span>Peak: <strong><%= @talay_fm_summary[:peak] %></strong></span>
+        <span>Hours: <strong><%= @talay_fm_summary[:hours] %></strong></span>
+      </div>
+    <% end %>
+  </section>
+<% end %>
+
+<% if @surf_radio_stats.all? { |s| s[1] == 0 } && @talay_fm_stats.all? { |s| s[1] == 0 } %>
+  <p>No stats recorded for this month.</p>
+<% end %>
