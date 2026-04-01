@@ -56,10 +56,32 @@ namespace :stats do
     puts "\nDone."
   end
 
-  desc "Backfill all stats (daily, monthly, outages)"
+  desc "Backfill song plays from snapshots"
+  task backfill_song_plays: :environment do
+    first = Snapshot.minimum(:created_at)
+    last = Snapshot.maximum(:created_at)
+
+    unless first && last
+      puts "No snapshots found."
+      next
+    end
+
+    puts "Backfilling song plays from #{first} to #{last}..."
+    current = first.beginning_of_day
+    while current < last
+      next_day = current + 1.day
+      SongPlayExtractor.new(from: current, to: next_day).extract
+      print "."
+      current = next_day
+    end
+    puts "\nDone."
+  end
+
+  desc "Backfill all stats (daily, monthly, outages, song plays)"
   task backfill: :environment do
     Rake::Task["stats:backfill_daily"].invoke
     Rake::Task["stats:backfill_monthly"].invoke
     Rake::Task["stats:backfill_outages"].invoke
+    Rake::Task["stats:backfill_song_plays"].invoke
   end
 end

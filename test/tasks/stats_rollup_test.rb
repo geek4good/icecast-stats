@@ -44,6 +44,21 @@ class StatsRollupTaskTest < ActiveSupport::TestCase
     end
   end
 
+  test "stats:backfill_song_plays runs without error" do
+    assert_nothing_raised do
+      capture_io { Rake::Task["stats:backfill_song_plays"].invoke }
+    end
+  end
+
+  test "stats:backfill_song_plays is idempotent" do
+    capture_io { Rake::Task["stats:backfill_song_plays"].invoke }
+    Rake::Task["stats:backfill_song_plays"].reenable
+    count = SongPlay.count
+
+    capture_io { Rake::Task["stats:backfill_song_plays"].invoke }
+    assert_equal count, SongPlay.count
+  end
+
   test "stats:backfill runs all subtasks" do
     assert_nothing_raised do
       capture_io { Rake::Task["stats:backfill"].invoke }
