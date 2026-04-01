@@ -1,3 +1,9 @@
+<nav class="sub-nav">
+  <%= link_to "Daily", root_path, class: "nav-link" %>
+  <%= link_to "Weekly", stats_weekly_path, class: "nav-link nav-link--active" %>
+  <%= link_to "Monthly", stats_monthly_path, class: "nav-link" %>
+</nav>
+
 <h1>Week of <%= @week_label %> (ICT, UTC+7)</h1>
 
 <% if @surf_radio_stats.any? { |s| s[1] > 0 } %>
