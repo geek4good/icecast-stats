@@ -2,6 +2,10 @@
 postgres = "18.3"
 ruby = "4.0.2"
 
+[env]
+_.file = ".env.local"
+PGDATA = "{{config_root}}/storage/postgres"
+
 [tasks."db:start"]
 description = "Start PostgreSQL"
 run = """
@@ -53,6 +57,3 @@ run = "bin/rails console"
 [tasks.security]
 description = "Run Brakeman and bundler-audit"
 run = "bin/brakeman --no-pager && bin/bundler-audit"
-
-[env]
-PGDATA = "{{config_root}}/storage/postgres"

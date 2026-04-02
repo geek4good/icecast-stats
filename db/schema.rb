@@ -22,16 +22,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_000003) do
   end
 
   create_table "song_plays", force: :cascade do |t|
-    t.text "title", null: false
     t.text "artist"
-    t.text "song"
     t.text "category", null: false
-    t.text "station", null: false
-    t.datetime "started_at", null: false
-    t.datetime "ended_at", null: false
-    t.integer "duration_seconds", null: false
-    t.integer "snapshot_count", null: false
     t.datetime "created_at", null: false
+    t.integer "duration_seconds", null: false
+    t.datetime "ended_at", null: false
+    t.integer "snapshot_count", null: false
+    t.text "song"
+    t.datetime "started_at", null: false
+    t.text "station", null: false
+    t.text "title", null: false
     t.datetime "updated_at", null: false
     t.index ["artist", "station"], name: "index_song_plays_on_artist_and_station"
     t.index ["category", "station"], name: "index_song_plays_on_category_and_station"
@@ -50,17 +50,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_000003) do
     t.datetime "to"
     t.integer "total_time"
     t.datetime "updated_at", null: false
-    t.index ["station", "from", "to"], name: "index_listener_stats_on_station_and_from_and_to", unique: true
-    t.index ["station"], name: "index_listener_stats_on_station"
+    t.index ["station", "from", "to"], name: "index_stats_on_station_and_from_and_to", unique: true
+    t.index ["station"], name: "index_stats_on_station"
   end
 
   create_table "stream_outages", force: :cascade do |t|
-    t.text "station", null: false
-    t.datetime "detected_at", null: false
-    t.text "previous_stream_start"
-    t.text "new_stream_start"
-    t.integer "estimated_downtime_seconds"
     t.datetime "created_at", null: false
+    t.datetime "detected_at", null: false
+    t.integer "estimated_downtime_seconds"
+    t.text "new_stream_start"
+    t.text "previous_stream_start"
+    t.text "station", null: false
     t.datetime "updated_at", null: false
     t.index ["station", "detected_at"], name: "index_stream_outages_on_station_and_detected_at"
   end
