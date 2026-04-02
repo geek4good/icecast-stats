@@ -1,4 +1,6 @@
 class OutageDetector
+  SNAPSHOT_GAP_THRESHOLD = 20.seconds
+
   attr_reader :from, :to
 
   def initialize(from:, to:)
@@ -10,6 +12,13 @@ class OutageDetector
     snapshots = fetch_snapshots
     return [] if snapshots.empty?
 
+    outages = detect_stream_restarts(snapshots) + detect_snapshot_gaps
+    persist(outages)
+  end
+
+  private
+
+  def detect_stream_restarts(snapshots)
     outages = []
     last_stream_start = {}
 
@@ -32,10 +41,33 @@ class OutageDetector
       last_stream_start[station] = stream_start
     end
 
-    persist(outages)
+    outages
   end
 
-  private
+  def detect_snapshot_gaps
+    timestamps = fetch_snapshot_timestamps
+    return [] if timestamps.size < 2
+
+    outages = []
+
+    timestamps.each_cons(2) do |prev_time, next_time|
+      gap = next_time - prev_time
+      next unless gap > SNAPSHOT_GAP_THRESHOLD
+
+      stations = stations_at(prev_time)
+      stations.each do |station|
+        outages << {
+          station: station,
+          detected_at: next_time,
+          previous_stream_start: nil,
+          new_stream_start: nil,
+          estimated_downtime_seconds: gap.to_i
+        }
+      end
+    end
+
+    outages
+  end
 
   def fetch_snapshots
     sql = Snapshot.sanitize_sql_array([<<~SQL, from:, to:])
@@ -63,12 +95,41 @@ class OutageDetector
     end
   end
 
+  def fetch_snapshot_timestamps
+    sql = Snapshot.sanitize_sql_array([<<~SQL, from:, to:])
+      SELECT DISTINCT created_at
+      FROM snapshots
+      WHERE created_at >= :from AND created_at < :to
+      ORDER BY created_at
+    SQL
+
+    Snapshot.connection.select_values(sql).map do |ts|
+      ts.is_a?(String) ? Time.parse(ts) : ts
+    end
+  end
+
+  def stations_at(timestamp)
+    sql = Snapshot.sanitize_sql_array([<<~SQL, timestamp:])
+      SELECT DISTINCT source->>'server_name' AS station
+      FROM
+        snapshots,
+        jsonb_array_elements(
+          CASE jsonb_typeof(stats->'icestats'->'source')
+            WHEN 'array' THEN stats->'icestats'->'source'
+            ELSE jsonb_build_array(stats->'icestats'->'source')
+          END
+        ) AS source
+      WHERE snapshots.created_at = :timestamp
+        AND source->>'server_name' IS NOT NULL
+    SQL
+
+    Snapshot.connection.select_values(sql)
+  end
+
   def estimate_downtime(previous_start, new_start)
     begin
       prev = Time.parse(previous_start)
       current = Time.parse(new_start)
-      # The difference between stream starts is a rough estimate
-      # of how long the stream was down + back up
       (current - prev).abs.to_i
     rescue
       nil
