@@ -19,7 +19,7 @@ class ChartCardComponent < BaseHtmlComponent
           p(class: "chart-subtitle") { @subtitle } if @subtitle
         end
       end
-      yield
+      yield if block_given?
     end
   end
 end

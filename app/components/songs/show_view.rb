@@ -37,6 +37,6 @@ class Songs::ShowView < BaseHtmlComponent
 
     h1 { @title }
 
-    yield
+    yield if block_given?
   end
 end
