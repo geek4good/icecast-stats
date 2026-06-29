@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  # Reveal health status on /up — must be before the /:station scope
+  # to avoid being caught as station: "up".
+  get "up" => "rails/health#show", :as => :rails_health_check
+
   # Legacy route redirects (before scope to avoid :station capture)
   get "stats/index", to: redirect("/surf-radio/listeners/daily")
   get "stats/weekly", to: redirect("/surf-radio/listeners/weekly")
@@ -18,7 +22,4 @@ Rails.application.routes.draw do
     get "songs", to: redirect { |params| "/#{params[:station]}/songs/daily" }
     get "", to: redirect { |params| "/#{params[:station]}/listeners/daily" }
   end
-
-  # Reveal health status on /up
-  get "up" => "rails/health#show", :as => :rails_health_check
 end
