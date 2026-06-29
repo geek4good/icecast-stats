@@ -15,9 +15,10 @@ FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 WORKDIR /rails
 
 # Install base packages (curl removed — healthcheck uses Ruby stdlib;
-# sqlite3 removed — app uses PostgreSQL only)
+# sqlite3 removed — app uses PostgreSQL only;
+# libvips removed — no image processing/ActiveStorage)
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y libjemalloc2 libvips libpq5 && \
+    apt-get install --no-install-recommends -y libjemalloc2 libpq5 && \
     ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 

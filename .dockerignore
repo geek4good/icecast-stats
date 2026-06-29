@@ -56,9 +56,6 @@
 /context-os
 /script
 
-# Ignore Kamal deployment config (not needed inside the container)
-/.kamal
-
 # Ignore editor/linter config and dev tooling
 /.rubocop.yml
 /.pi

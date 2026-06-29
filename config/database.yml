@@ -15,10 +15,6 @@ development:
     <<: *default
     database: surf_radio_development_queue
     migrations_paths: db/queue_migrate
-  cable:
-    <<: *default
-    database: surf_radio_development_cable
-    migrations_paths: db/cable_migrate
 
 test:
   primary:
@@ -32,10 +28,6 @@ test:
     <<: *default
     database: surf_radio_test_queue
     migrations_paths: db/queue_migrate
-  cable:
-    <<: *default
-    database: surf_radio_test_cable
-    migrations_paths: db/cable_migrate
 
 production:
   primary:
@@ -49,7 +41,3 @@ production:
     <<: *default
     url: <%= ENV.fetch("QUEUE_DATABASE_URL") { "#{ENV["DATABASE_URL"]}_queue" } %>
     migrations_paths: db/queue_migrate
-  cable:
-    <<: *default
-    url: <%= ENV.fetch("CABLE_DATABASE_URL") { "#{ENV["DATABASE_URL"]}_cable" } %>
-    migrations_paths: db/cable_migrate

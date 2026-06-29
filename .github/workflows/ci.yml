@@ -82,7 +82,6 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/surf_radio_test
           CACHE_DATABASE_URL: postgres://postgres:postgres@localhost:5432/surf_radio_test_cache
           QUEUE_DATABASE_URL: postgres://postgres:postgres@localhost:5432/surf_radio_test_queue
-          CABLE_DATABASE_URL: postgres://postgres:postgres@localhost:5432/surf_radio_test_cable
         run: bin/rails db:test:prepare test
 
   system-test:
@@ -114,7 +113,6 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/surf_radio_test
           CACHE_DATABASE_URL: postgres://postgres:postgres@localhost:5432/surf_radio_test_cache
           QUEUE_DATABASE_URL: postgres://postgres:postgres@localhost:5432/surf_radio_test_queue
-          CABLE_DATABASE_URL: postgres://postgres:postgres@localhost:5432/surf_radio_test_cable
         run: bin/rails db:test:prepare test:system
 
       - name: Keep screenshots from failed system tests
