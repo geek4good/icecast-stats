@@ -10,9 +10,15 @@ class SummaryRowComponent < BaseHtmlComponent
 
   def view_template
     div(class: "summary-row") do
-      span { "Avg: "; strong { @summary[:avg].to_s } }
-      span { "Peak: "; strong { @summary[:peak].to_s } }
-      span { "Hours: "; strong { @summary[:hours].to_s } }
+      span {
+        strong { @summary[:avg].to_s }
+      }
+      span {
+        strong { @summary[:peak].to_s }
+      }
+      span {
+        strong { @summary[:hours].to_s }
+      }
     end
   end
 end

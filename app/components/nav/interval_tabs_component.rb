@@ -20,7 +20,7 @@ class Nav::IntervalTabsComponent < BaseHtmlComponent
     @station_slug = station_slug
     @current_view = current_view
     @current_interval = current_interval
-    @available_intervals = current_view == "songs" ? INTERVALS.except("patterns") : INTERVALS
+    @available_intervals = (current_view == "songs") ? INTERVALS.except("patterns") : INTERVALS
   end
 
   def view_template

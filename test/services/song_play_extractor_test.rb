@@ -25,7 +25,7 @@ class SongPlayExtractorTest < ActiveSupport::TestCase
 
   test "extract is idempotent" do
     extractor = SongPlayExtractor.new(from: @from, to: @to)
-    first_run = extractor.extract
+    extractor.extract
     second_run = extractor.extract
     assert_empty second_run
   end

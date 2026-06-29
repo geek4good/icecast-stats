@@ -87,8 +87,8 @@ class OutageDetectorTest < ActiveSupport::TestCase
       stats: {
         "icestats" => {
           "source" => [
-            { "server_name" => "Surf Radio", "listeners" => 100, "stream_start_iso8601" => "2025-12-25T08:00:00+0000" },
-            { "server_name" => "Talay FM", "listeners" => 200, "stream_start_iso8601" => "2025-12-25T08:00:00+0000" }
+            {"server_name" => "Surf Radio", "listeners" => 100, "stream_start_iso8601" => "2025-12-25T08:00:00+0000"},
+            {"server_name" => "Talay FM", "listeners" => 200, "stream_start_iso8601" => "2025-12-25T08:00:00+0000"}
           ]
         }
       }

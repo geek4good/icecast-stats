@@ -35,7 +35,7 @@ class BaseSvgComponent < Phlex::SVG
     return [[1], 1] if max_value.nil? || max_value <= 0
 
     raw_step = max_value / 4.0
-    magnitude = 10 ** Math.log10([raw_step, 1].max).floor
+    magnitude = 10**Math.log10([raw_step, 1].max).floor
     nice_steps = [1, 2, 2.5, 5, 10].map { |n| n * magnitude }
     grid_step = nice_steps.find { |s| s >= raw_step } || nice_steps.last
     grid_count = (max_value.to_f / grid_step).ceil

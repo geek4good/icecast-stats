@@ -5,21 +5,21 @@ class ListenersControllerTest < ActionDispatch::IntegrationTest
 
   test "root resolves to listeners#show with defaults" do
     assert_recognizes(
-      { controller: "listeners", action: "show", station: "surf-radio", interval: "daily" },
+      {controller: "listeners", action: "show", station: "surf-radio", interval: "daily"},
       "/"
     )
   end
 
   test "listeners route resolves to listeners#show" do
     assert_recognizes(
-      { controller: "listeners", action: "show", station: "surf-radio", interval: "daily" },
+      {controller: "listeners", action: "show", station: "surf-radio", interval: "daily"},
       "/surf-radio/listeners/daily"
     )
   end
 
   test "listeners patterns route resolves to listeners#show" do
     assert_recognizes(
-      { controller: "listeners", action: "show", station: "talay-fm", interval: "patterns" },
+      {controller: "listeners", action: "show", station: "talay-fm", interval: "patterns"},
       "/talay-fm/listeners/patterns"
     )
   end

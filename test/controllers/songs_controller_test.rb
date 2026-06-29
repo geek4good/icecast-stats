@@ -5,7 +5,7 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
 
   test "songs route resolves to songs#show" do
     assert_recognizes(
-      { controller: "songs", action: "show", station: "surf-radio", interval: "daily" },
+      {controller: "songs", action: "show", station: "surf-radio", interval: "daily"},
       "/surf-radio/songs/daily"
     )
   end

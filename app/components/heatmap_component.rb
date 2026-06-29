@@ -72,9 +72,9 @@ class HeatmapComponent < BaseSvgComponent
         (0..23).each do |hour|
           cx = LABEL_WIDTH + hour * step
           value = @data[[dow, hour]] || 0
-          intensity = @max_value > 0 ? (value.to_f / @max_value) : 0
+          intensity = (@max_value > 0) ? (value.to_f / @max_value) : 0
 
-          g("data-has-value": value > 0 ? "true" : nil) do
+          g("data-has-value": (value > 0) ? "true" : nil) do
             title { "#{@day_names[dow]} #{hour}:00 — #{value} avg listeners" } if value > 0
 
             rect(
@@ -89,7 +89,7 @@ class HeatmapComponent < BaseSvgComponent
               text(
                 x: cx + @cell_size / 2, y: y + @cell_size / 2 + 4,
                 "text-anchor": "middle",
-                fill: intensity > 0.5 ? "#ffffff" : c[:text_dark],
+                fill: (intensity > 0.5) ? "#ffffff" : c[:text_dark],
                 "font-size": "9",
                 "font-variant-numeric": "tabular-nums"
               ) { value.to_s }
@@ -120,6 +120,6 @@ class HeatmapComponent < BaseSvgComponent
     final_g = (gg + (g - gg) * intensity).round
     final_b = (gb + (b - gb) * intensity).round
 
-    "##{final_r.to_s(16).rjust(2, '0')}#{final_g.to_s(16).rjust(2, '0')}#{final_b.to_s(16).rjust(2, '0')}"
+    "##{final_r.to_s(16).rjust(2, "0")}#{final_g.to_s(16).rjust(2, "0")}#{final_b.to_s(16).rjust(2, "0")}"
   end
 end

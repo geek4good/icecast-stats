@@ -18,13 +18,13 @@ class SongsController < ApplicationController
 
   def show_daily
     range = Date.current.beginning_of_day..Time.current
-    period_label = "#{Date.current.strftime('%A, %-d %B %Y')} (ICT)"
+    period_label = "#{Date.current.strftime("%A, %-d %B %Y")} (ICT)"
     load_and_render(range, period_label)
   end
 
   def show_weekly
     range = Date.current.beginning_of_week(:monday).beginning_of_day..Time.current
-    period_label = "Week of #{range.begin.strftime('%-d %b')} – #{Date.current.strftime('%-d %b %Y')}"
+    period_label = "Week of #{range.begin.strftime("%-d %b")} – #{Date.current.strftime("%-d %b %Y")}"
     load_and_render(range, period_label)
   end
 
@@ -82,7 +82,7 @@ class SongsController < ApplicationController
     view = Songs::ShowView.new(station_slug: @station_slug, interval: @interval, title: title) { |v|
       if content_breakdown.any?
         cards = content_breakdown.map { |category, minutes|
-          { title: category.capitalize, stats: { "" => "#{minutes.to_s.gsub(/(\d)(?=(\d{3})+(?!\d))/, '\\1,')} min" } }
+          {title: category.capitalize, stats: {"" => "#{minutes.to_s.gsub(/(\d)(?=(\d{3})+(?!\d))/, '\\1,')} min"}}
         }
         v.render ChartCardComponent.new(title: "Content Breakdown", subtitle: "Minutes by category") do
           v.render SummaryCardsComponent.new(cards: cards)
@@ -92,9 +92,9 @@ class SongsController < ApplicationController
       if top_songs.any?
         rows = top_songs.each_with_index.map { |song, i|
           [i + 1, song.title, song.artist || "–",
-           format_duration(song.total_duration.to_i),
-           song.play_count,
-           format_duration(song.avg_duration)]
+            format_duration(song.total_duration.to_i),
+            song.play_count,
+            format_duration(song.avg_duration)]
         }
         v.render ChartCardComponent.new(title: "Most Played Songs") do
           v.render DataTableComponent.new(
@@ -107,8 +107,8 @@ class SongsController < ApplicationController
       if top_artists.any?
         rows = top_artists.each_with_index.map { |artist, i|
           [i + 1, artist.artist,
-           format_duration(artist.total_duration.to_i),
-           artist.play_count]
+            format_duration(artist.total_duration.to_i),
+            artist.play_count]
         }
         v.render ChartCardComponent.new(title: "Top Artists") do
           v.render DataTableComponent.new(
@@ -121,9 +121,9 @@ class SongsController < ApplicationController
       if top_ads.any?
         rows = top_ads.each_with_index.map { |ad, i|
           [i + 1, ad.title,
-           format_duration(ad.total_duration.to_i),
-           ad.play_count,
-           format_duration(ad.avg_duration)]
+            format_duration(ad.total_duration.to_i),
+            ad.play_count,
+            format_duration(ad.avg_duration)]
         }
         v.render ChartCardComponent.new(title: "Most Played Ads") do
           v.render DataTableComponent.new(

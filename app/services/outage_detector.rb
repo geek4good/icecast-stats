@@ -127,13 +127,11 @@ class OutageDetector
   end
 
   def estimate_downtime(previous_start, new_start)
-    begin
-      prev = Time.parse(previous_start)
-      current = Time.parse(new_start)
-      (current - prev).abs.to_i
-    rescue
-      nil
-    end
+    prev = Time.parse(previous_start)
+    current = Time.parse(new_start)
+    (current - prev).abs.to_i
+  rescue
+    nil
   end
 
   def persist(outages)

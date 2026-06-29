@@ -20,5 +20,5 @@ Rails.application.routes.draw do
   end
 
   # Reveal health status on /up
-  get "up" => "rails/health#show", as: :rails_health_check
+  get "up" => "rails/health#show", :as => :rails_health_check
 end

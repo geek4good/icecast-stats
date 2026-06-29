@@ -61,8 +61,7 @@ module StationScoped
 
     year, month = raw.split("-").map(&:to_i)
     Date.new(year, month, 1)
-  rescue Date::Error, ArgumentError
+  rescue Date::Error
     nil
   end
-
 end

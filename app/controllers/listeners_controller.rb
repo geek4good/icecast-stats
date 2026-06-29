@@ -18,7 +18,7 @@ class ListenersController < ApplicationController
   def show_daily
     @date = begin
       params[:date] ? Date.parse(params[:date]) : Date.current - 1.day
-    rescue Date::Error, ArgumentError
+    rescue Date::Error
       Date.current - 1.day
     end
 
@@ -30,7 +30,7 @@ class ListenersController < ApplicationController
     date_label = @date.strftime("%A, %-d %B %Y")
 
     prev_date = (@date - 1.day).strftime("%Y-%m-%d")
-    next_date = (@date + 1.day) <= Date.current ? @date.next_day.strftime("%Y-%m-%d") : nil
+    next_date = ((@date + 1.day) <= Date.current) ? @date.next_day.strftime("%Y-%m-%d") : nil
 
     date_nav = {
       prev_href: listeners_path(station: @station_slug, interval: "daily", date: prev_date),
@@ -61,7 +61,7 @@ class ListenersController < ApplicationController
         year, week_num = params[:week].split("-W").map(&:to_i)
         Date.commercial(year, week_num, 1)
       end
-    rescue Date::Error, ArgumentError
+    rescue Date::Error
       nil
     end
     @week_start ||= (Date.current - 1.week).beginning_of_week(:monday)
@@ -80,7 +80,7 @@ class ListenersController < ApplicationController
     date_nav = {
       prev_href: listeners_path(station: @station_slug, interval: "weekly", week: (@week_start - 1.week).strftime("%G-W%V")),
       label: "Week of #{week_label} (ICT, UTC+7)",
-      next_href: next_week_start <= Date.current ? listeners_path(station: @station_slug, interval: "weekly", week: next_week_start.strftime("%G-W%V")) : nil
+      next_href: (next_week_start <= Date.current) ? listeners_path(station: @station_slug, interval: "weekly", week: next_week_start.strftime("%G-W%V")) : nil
     }
 
     view = Listeners::ShowView.new(
@@ -119,7 +119,7 @@ class ListenersController < ApplicationController
     date_nav = {
       prev_href: listeners_path(station: @station_slug, interval: "monthly", month: (@month_start - 1.month).strftime("%Y-%m")),
       label: "#{month_label} (ICT, UTC+7)",
-      next_href: @month_end <= Date.current ? listeners_path(station: @station_slug, interval: "monthly", month: @month_end.strftime("%Y-%m")) : nil
+      next_href: (@month_end <= Date.current) ? listeners_path(station: @station_slug, interval: "monthly", month: @month_end.strftime("%Y-%m")) : nil
     }
 
     view = Listeners::ShowView.new(
@@ -153,7 +153,7 @@ class ListenersController < ApplicationController
     local_ts = %("from" AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Bangkok')
     from_time = @month_start.to_time(:utc).iso8601
     to_time = @month_end.to_time(:utc).iso8601
-    time_filter = Stat.sanitize_sql(["WHERE \"from\" >= :from AND \"from\" < :to AND station = :station", { from: from_time, to: to_time, station: @station_name }])
+    time_filter = Stat.sanitize_sql(["WHERE \"from\" >= :from AND \"from\" < :to AND station = :station", {from: from_time, to: to_time, station: @station_name}])
 
     # Single query at hour×day granularity — dow_averages and weekend_weekday derived in Ruby
     granularity_raw = Stat.connection.select_all(<<~SQL).to_a
@@ -181,7 +181,7 @@ class ListenersController < ApplicationController
     dow_averages = dow_groups.sort.map do |dow, rows|
       avg = (rows.sum { |r| r["avg_listeners"].to_i * 1.0 } / rows.size).round
       peak = (rows.sum { |r| r["avg_peak"].to_i * 1.0 } / rows.size).round
-      { "dow" => dow, "avg_listeners" => avg, "avg_peak" => peak }
+      {"dow" => dow, "avg_listeners" => avg, "avg_peak" => peak}
     end
 
     # Derive weekend vs weekday by splitting the hour-level data
@@ -194,9 +194,9 @@ class ListenersController < ApplicationController
       next if rows.empty?
       avg = (rows.sum { |r| r["avg_listeners"].to_i * 1.0 } / rows.size).round
       peak = (rows.sum { |r| r["avg_peak"].to_i * 1.0 } / rows.size).round
-      { "period" => period, "avg_listeners" => avg, "avg_peak" => peak }
+      {"period" => period, "avg_listeners" => avg, "avg_peak" => peak}
     end
-    weekend_weekday.sort_by! { |r| r["period"] == "weekend" ? 0 : 1 }
+    weekend_weekday.sort_by! { |r| (r["period"] == "weekend") ? 0 : 1 }
 
     # Build day-of-week chart data
     dow_chart = dow_averages.map do |row|
@@ -217,7 +217,7 @@ class ListenersController < ApplicationController
     date_nav = {
       prev_href: listeners_path(station: @station_slug, interval: "patterns", month: prev_month),
       label: month_label,
-      next_href: @month_end <= Date.current ? listeners_path(station: @station_slug, interval: "patterns", month: next_month) : nil
+      next_href: (@month_end <= Date.current) ? listeners_path(station: @station_slug, interval: "patterns", month: next_month) : nil
     }
 
     view = Listeners::ShowView.new(
@@ -290,7 +290,6 @@ class ListenersController < ApplicationController
       )
     return nil if row.nil? || row[0].zero?
 
-    { avg: row[1].to_i, peak: row[2].to_i, median: row[3].to_i, hours: row[4].to_i }
+    {avg: row[1].to_i, peak: row[2].to_i, median: row[3].to_i, hours: row[4].to_i}
   end
-
 end
