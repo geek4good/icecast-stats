@@ -57,7 +57,7 @@ class ListenersController < ApplicationController
 
   def show_weekly
     @week_start = begin
-      if params[:week].present? && params[:week].match?(/\A\d{4}-W\d{1,2}\z/)
+      if params[:week].present? && params[:week].match?(/\A\d{4}-W(?:0[1-9]|[1-4]\d|5[0-3])\z/)
         year, week_num = params[:week].split("-W").map(&:to_i)
         Date.commercial(year, week_num, 1)
       end
@@ -104,15 +104,7 @@ class ListenersController < ApplicationController
   end
 
   def show_monthly
-    @month_start = begin
-      if params[:month].present? && params[:month].match?(/\A\d{4}-\d{2}\z/)
-        year, month = params[:month].split("-").map(&:to_i)
-        Date.new(year, month, 1)
-      end
-    rescue Date::Error, ArgumentError
-      nil
-    end
-    @month_start ||= (Date.current - 1.month).beginning_of_month
+    @month_start = parse_month_param || (Date.current - 1.month).beginning_of_month
 
     @month_end = @month_start.next_month
     month_label = @month_start.strftime("%B %Y")
@@ -151,15 +143,7 @@ class ListenersController < ApplicationController
   end
 
   def show_patterns
-    @month_start = begin
-      if params[:month].present? && params[:month].match?(/\A\d{4}-\d{2}\z/)
-        year, month = params[:month].split("-").map(&:to_i)
-        Date.new(year, month, 1)
-      end
-    rescue Date::Error, ArgumentError
-      nil
-    end
-    @month_start ||= (Date.current - 1.month).beginning_of_month
+    @month_start = parse_month_param || (Date.current - 1.month).beginning_of_month
 
     @month_end = @month_start.next_month
     prev_month = (@month_start - 1.month).strftime("%Y-%m")
@@ -171,46 +155,48 @@ class ListenersController < ApplicationController
     to_time = @month_end.to_time(:utc).iso8601
     time_filter = Stat.sanitize_sql(["WHERE \"from\" >= :from AND \"from\" < :to AND station = :station", { from: from_time, to: to_time, station: @station_name }])
 
-    dow_averages = Stat.connection.select_all(<<~SQL).to_a
-      SELECT
-        EXTRACT(DOW FROM #{local_ts}) AS dow,
-        ROUND(AVG(average))::int AS avg_listeners,
-        ROUND(AVG(maximum))::int AS avg_peak
-      FROM stats
-      #{time_filter}
-      GROUP BY EXTRACT(DOW FROM #{local_ts})
-      ORDER BY dow
-    SQL
-
-    heatmap_data_raw = Stat.connection.select_all(<<~SQL).to_a
+    # Single query at hour×day granularity — dow_averages and weekend_weekday derived in Ruby
+    granularity_raw = Stat.connection.select_all(<<~SQL).to_a
       SELECT
         EXTRACT(DOW FROM #{local_ts}) AS dow,
         EXTRACT(HOUR FROM #{local_ts}) AS hour,
-        ROUND(AVG(average))::int AS avg_listeners
+        ROUND(AVG(average))::int AS avg_listeners,
+        ROUND(AVG(maximum))::int AS avg_peak
       FROM stats
       #{time_filter}
       GROUP BY EXTRACT(DOW FROM #{local_ts}), EXTRACT(HOUR FROM #{local_ts})
       ORDER BY dow, hour
     SQL
 
-    weekend_weekday = Stat.connection.select_all(<<~SQL).to_a
-      SELECT
-        CASE WHEN EXTRACT(DOW FROM #{local_ts}) IN (0, 6) THEN 'weekend' ELSE 'weekday' END AS period,
-        ROUND(AVG(average))::int AS avg_listeners,
-        ROUND(AVG(maximum))::int AS avg_peak
-      FROM stats
-      #{time_filter}
-      GROUP BY period
-      ORDER BY period DESC
-    SQL
-
     day_names = %w[Sun Mon Tue Wed Thu Fri Sat]
 
-    # Build heatmap data hash
+    # Derive heatmap data (hour×dow grid)
     heatmap_data = {}
-    heatmap_data_raw.each do |row|
+    granularity_raw.each do |row|
       heatmap_data[[row["dow"].to_i, row["hour"].to_i]] = row["avg_listeners"].to_i
     end
+
+    # Derive day-of-week averages by aggregating hour-level data
+    dow_groups = granularity_raw.group_by { |row| row["dow"].to_i }
+    dow_averages = dow_groups.sort.map do |dow, rows|
+      avg = (rows.sum { |r| r["avg_listeners"].to_i * 1.0 } / rows.size).round
+      peak = (rows.sum { |r| r["avg_peak"].to_i * 1.0 } / rows.size).round
+      { "dow" => dow, "avg_listeners" => avg, "avg_peak" => peak }
+    end
+
+    # Derive weekend vs weekday by splitting the hour-level data
+    wkend = granularity_raw.select { |r| [0, 6].include?(r["dow"].to_i) }
+    wkday = granularity_raw.select { |r| ![0, 6].include?(r["dow"].to_i) }
+    weekend_weekday = [
+      ["weekend", wkend],
+      ["weekday", wkday]
+    ].filter_map do |period, rows|
+      next if rows.empty?
+      avg = (rows.sum { |r| r["avg_listeners"].to_i * 1.0 } / rows.size).round
+      peak = (rows.sum { |r| r["avg_peak"].to_i * 1.0 } / rows.size).round
+      { "period" => period, "avg_listeners" => avg, "avg_peak" => peak }
+    end
+    weekend_weekday.sort_by! { |r| r["period"] == "weekend" ? 0 : 1 }
 
     # Build day-of-week chart data
     dow_chart = dow_averages.map do |row|
@@ -240,13 +226,13 @@ class ListenersController < ApplicationController
       title: "Listener Patterns — #{@station_name}",
       date_nav: date_nav
     ) { |v|
-      if dow_averages.any?
+      if granularity_raw.any? && dow_averages.any?
         v.render ChartCardComponent.new(title: "Day-of-Week Averages", subtitle: "Average listeners by day") do
           v.render BarChartComponent.new(stats: dow_chart)
         end
       end
 
-      if heatmap_data_raw.any?
+      if granularity_raw.any?
         v.render ChartCardComponent.new(title: "Hour × Day Heatmap", subtitle: "Average listeners (darker = more)") do
           v.render HeatmapComponent.new(data: heatmap_data, day_names: day_names)
         end
@@ -258,7 +244,7 @@ class ListenersController < ApplicationController
         end
       end
 
-      if dow_averages.empty? && heatmap_data_raw.empty?
+      if granularity_raw.empty?
         v.p { "No stats recorded for #{month_label}." }
       end
     }
@@ -294,15 +280,17 @@ class ListenersController < ApplicationController
   end
 
   def daily_period_summary(scope, period_start, period_end)
-    stats = scope.where(from: period_start...period_end)
-    return nil if stats.empty?
+    row = scope.where(from: period_start...period_end)
+      .pick(
+        Arel.sql("COUNT(*)"),
+        Arel.sql("COALESCE(ROUND(AVG(average)), 0)"),
+        Arel.sql("COALESCE(MAX(maximum), 0)"),
+        Arel.sql("COALESCE(ROUND(AVG(median)), 0)"),
+        Arel.sql("COALESCE(SUM(snapshot_count), 0)")
+      )
+    return nil if row.nil? || row[0].zero?
 
-    {
-      avg: (stats.average(:average) || 0).round,
-      peak: stats.maximum(:maximum) || 0,
-      median: (stats.average(:median) || 0).round,
-      hours: stats.sum(:snapshot_count)
-    }
+    { avg: row[1].to_i, peak: row[2].to_i, median: row[3].to_i, hours: row[4].to_i }
   end
 
 end

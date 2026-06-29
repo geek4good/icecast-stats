@@ -80,10 +80,64 @@ class ListenersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "weekly with week zero falls back to default" do
+    get listeners_path(station: "surf-radio", interval: "weekly", week: "2025-W00")
+    assert_response :success
+    # Should fall back to last week, not parse W00
+    default_label = (Date.current - 1.week).beginning_of_week(:monday).strftime("%-d %b")
+    assert_includes response.body, default_label
+  end
+
+  test "weekly with week 54 falls back to default" do
+    get listeners_path(station: "surf-radio", interval: "weekly", week: "2025-W54")
+    assert_response :success
+    default_label = (Date.current - 1.week).beginning_of_week(:monday).strftime("%-d %b")
+    assert_includes response.body, default_label
+  end
+
+  test "weekly with single digit week falls back to default" do
+    get listeners_path(station: "surf-radio", interval: "weekly", week: "2025-W5")
+    assert_response :success
+    default_label = (Date.current - 1.week).beginning_of_week(:monday).strftime("%-d %b")
+    assert_includes response.body, default_label
+  end
+
+  test "weekly accepts valid week 01" do
+    get listeners_path(station: "surf-radio", interval: "weekly", week: "2025-W01")
+    assert_response :success
+  end
+
+  test "weekly accepts valid week 53" do
+    get listeners_path(station: "surf-radio", interval: "weekly", week: "2020-W53")
+    assert_response :success
+    # 2020 has 53 ISO weeks
+  end
+
   test "weekly shows no-data message when no stats" do
     get listeners_path(station: "talay-fm", interval: "weekly")
     assert_response :success
     assert_includes response.body, "No stats recorded for this week"
+  end
+
+  test "weekly renders summary row with stats" do
+    # Default weekly view is last week, scope is .daily (1-day intervals)
+    week_start = (Date.current - 1.week).beginning_of_week(:monday)
+    week_end = week_start + 7.days
+    (week_start...week_end).each do |day|
+      next_day = day + 1.day
+      Stat.create!(
+        from: Time.zone.local(day.year, day.month, day.day, 0, 0),
+        to: Time.zone.local(next_day.year, next_day.month, next_day.day, 0, 0),
+        average: 50, median: 40, maximum: 100,
+        total_time: 3600, snapshot_count: 12,
+        station: "Surf Radio"
+      )
+    end
+    get listeners_path(station: "surf-radio", interval: "weekly")
+    assert_response :success
+    # Summary row should contain Avg and Peak from the consolidated query
+    assert_includes response.body, "Avg:"
+    assert_includes response.body, "Peak:"
   end
 
   # ── Monthly view ──
@@ -108,6 +162,27 @@ class ListenersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "monthly with month zero falls back gracefully" do
+    get listeners_path(station: "surf-radio", interval: "monthly", month: "2025-00")
+    assert_response :success
+    expected_month = (Date.current - 1.month).beginning_of_month.strftime("%B %Y")
+    assert_includes response.body, expected_month
+  end
+
+  test "monthly with month thirteen falls back gracefully" do
+    get listeners_path(station: "surf-radio", interval: "monthly", month: "2025-13")
+    assert_response :success
+    expected_month = (Date.current - 1.month).beginning_of_month.strftime("%B %Y")
+    assert_includes response.body, expected_month
+  end
+
+  test "monthly with single-digit month falls back gracefully" do
+    get listeners_path(station: "surf-radio", interval: "monthly", month: "2025-6")
+    assert_response :success
+    expected_month = (Date.current - 1.month).beginning_of_month.strftime("%B %Y")
+    assert_includes response.body, expected_month
+  end
+
   test "monthly shows month label" do
     get listeners_path(station: "surf-radio", interval: "monthly", month: "2025-12")
     assert_response :success
@@ -118,6 +193,25 @@ class ListenersControllerTest < ActionDispatch::IntegrationTest
     get listeners_path(station: "talay-fm", interval: "monthly")
     assert_response :success
     assert_includes response.body, "No stats recorded for this month"
+  end
+
+  test "monthly renders summary row with stats" do
+    month_start = (Date.current - 1.month).beginning_of_month
+    5.times do |i|
+      day = month_start + i.days
+      next_day = day + 1.day
+      Stat.create!(
+        from: Time.zone.local(day.year, day.month, day.day, 0, 0),
+        to: Time.zone.local(next_day.year, next_day.month, next_day.day, 0, 0),
+        average: 60, median: 50, maximum: 120,
+        total_time: 3600, snapshot_count: 24,
+        station: "Surf Radio"
+      )
+    end
+    get listeners_path(station: "surf-radio", interval: "monthly")
+    assert_response :success
+    assert_includes response.body, "Avg:"
+    assert_includes response.body, "Peak:"
   end
 
   # ── Patterns view ──
@@ -160,10 +254,61 @@ class ListenersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "patterns with month zero falls back gracefully" do
+    get listeners_path(station: "surf-radio", interval: "patterns", month: "2025-00")
+    assert_response :success
+    expected_month = (Date.current - 1.month).beginning_of_month.strftime("%B %Y")
+    assert_includes response.body, expected_month
+  end
+
+  test "patterns with month thirteen falls back gracefully" do
+    get listeners_path(station: "surf-radio", interval: "patterns", month: "2025-13")
+    assert_response :success
+    expected_month = (Date.current - 1.month).beginning_of_month.strftime("%B %Y")
+    assert_includes response.body, expected_month
+  end
+
   test "patterns shows no-data message when no stats" do
     get listeners_path(station: "talay-fm", interval: "patterns")
     assert_response :success
     assert_includes response.body, "No stats recorded"
+  end
+
+  test "patterns renders all chart sections with data" do
+    # Create stats across multiple days and hours to populate all 3 chart sections
+    (1..7).each do |day|
+      (0..23).each do |hour|
+        Stat.create!(
+          from: Time.utc(2025, 12, day, hour, 0),
+          to: Time.utc(2025, 12, day, hour + 1, 0),
+          average: 10 + day + hour,
+          median: 8 + day,
+          maximum: 20 + day + hour,
+          total_time: 3600,
+          snapshot_count: 12,
+          station: "Surf Radio"
+        )
+      end
+    end
+    get listeners_path(station: "surf-radio", interval: "patterns", month: "2025-12")
+    assert_response :success
+    assert_includes response.body, "Day-of-Week Averages"
+    assert_includes response.body, "Hour × Day Heatmap"
+    assert_includes response.body, "Weekend vs Weekday"
+  end
+
+  test "patterns renders dow chart without heatmap data" do
+    # Stats on only one day — enough for DOW chart but limited heatmap
+    Stat.create!(
+      from: Time.utc(2025, 12, 1, 12, 0),
+      to: Time.utc(2025, 12, 1, 13, 0),
+      average: 50, median: 40, maximum: 80,
+      total_time: 3600, snapshot_count: 12,
+      station: "Surf Radio"
+    )
+    get listeners_path(station: "surf-radio", interval: "patterns", month: "2025-12")
+    assert_response :success
+    assert_includes response.body, "Day-of-Week Averages"
   end
 
   # ── Station scoping ──

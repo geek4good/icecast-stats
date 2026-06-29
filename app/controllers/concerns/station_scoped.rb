@@ -53,4 +53,16 @@ module StationScoped
     end
   end
 
+  # Parse a YYYY-MM month param, returning nil on invalid/out-of-range input.
+  # Falls back to the given block when the param is missing or unparseable.
+  def parse_month_param(key: :month)
+    raw = params[key]
+    return nil unless raw.present? && raw.match?(/\A\d{4}-(?:0[1-9]|1[0-2])\z/)
+
+    year, month = raw.split("-").map(&:to_i)
+    Date.new(year, month, 1)
+  rescue Date::Error, ArgumentError
+    nil
+  end
+
 end
