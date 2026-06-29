@@ -22,6 +22,9 @@ module SurfRadio
     # in config/environments, which are processed later.
     #
     config.time_zone = "Bangkok"
+
+    # No image processing — image_processing gem and libvips removed.
+    config.active_storage.variant_processor = :disabled
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end
