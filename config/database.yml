@@ -6,27 +6,27 @@ default: &default
 development:
   primary:
     <<: *default
-    database: surf_radio_development
+    database: icecast_stats_development
   cache:
     <<: *default
-    database: surf_radio_development_cache
+    database: icecast_stats_development_cache
     migrations_paths: db/cache_migrate
   queue:
     <<: *default
-    database: surf_radio_development_queue
+    database: icecast_stats_development_queue
     migrations_paths: db/queue_migrate
 
 test:
   primary:
     <<: *default
-    database: surf_radio_test
+    database: icecast_stats_test
   cache:
     <<: *default
-    database: surf_radio_test_cache
+    database: icecast_stats_test_cache
     migrations_paths: db/cache_migrate
   queue:
     <<: *default
-    database: surf_radio_test_queue
+    database: icecast_stats_test_queue
     migrations_paths: db/queue_migrate
 
 production:

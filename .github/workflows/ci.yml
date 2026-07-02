@@ -47,7 +47,7 @@ jobs:
        env:
          POSTGRES_USER: postgres
          POSTGRES_PASSWORD: postgres
-         POSTGRES_DB: surf_radio_test
+         POSTGRES_DB: icecast_stats_test
        ports:
          - 5432:5432
        options: --health-cmd pg_isready
@@ -64,9 +64,9 @@ jobs:
         env:
           RAILS_ENV: test
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/surf_radio_test
-          CACHE_DATABASE_URL: postgres://postgres:postgres@localhost:5432/surf_radio_test_cache
-          QUEUE_DATABASE_URL: postgres://postgres:postgres@localhost:5432/surf_radio_test_queue
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/icecast_stats_test
+          CACHE_DATABASE_URL: postgres://postgres:postgres@localhost:5432/icecast_stats_test_cache
+          QUEUE_DATABASE_URL: postgres://postgres:postgres@localhost:5432/icecast_stats_test_queue
         run: bin/rails db:test:prepare test
 
   system-test:
@@ -78,7 +78,7 @@ jobs:
        env:
          POSTGRES_USER: postgres
          POSTGRES_PASSWORD: postgres
-         POSTGRES_DB: surf_radio_test
+         POSTGRES_DB: icecast_stats_test
        ports:
          - 5432:5432
        options: --health-cmd pg_isready
@@ -95,9 +95,9 @@ jobs:
         env:
           RAILS_ENV: test
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/surf_radio_test
-          CACHE_DATABASE_URL: postgres://postgres:postgres@localhost:5432/surf_radio_test_cache
-          QUEUE_DATABASE_URL: postgres://postgres:postgres@localhost:5432/surf_radio_test_queue
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/icecast_stats_test
+          CACHE_DATABASE_URL: postgres://postgres:postgres@localhost:5432/icecast_stats_test_cache
+          QUEUE_DATABASE_URL: postgres://postgres:postgres@localhost:5432/icecast_stats_test_queue
         run: bin/rails db:test:prepare test:system
 
       - name: Keep screenshots from failed system tests

@@ -16,9 +16,9 @@ services:
   web:
     build: .
     environment:
-      DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/surf_radio_production
-      CACHE_DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/surf_radio_production_cache
-      QUEUE_DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/surf_radio_production_queue
+      DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/icecast_stats
+      CACHE_DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/icecast_stats_cache
+      QUEUE_DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/icecast_stats_queue
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
     volumes:
       - rails_log:/rails/log
@@ -38,9 +38,9 @@ services:
     build: .
     environment:
       RAILS_ENV: production
-      DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/surf_radio_production
-      CACHE_DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/surf_radio_production_cache
-      QUEUE_DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/surf_radio_production_queue
+      DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/icecast_stats
+      CACHE_DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/icecast_stats_cache
+      QUEUE_DATABASE_URL: postgres://postgres:Xk9mP2vL7nQ4wR8s@db:5432/icecast_stats_queue
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
     command: bash -c "bin/rails db:prepare && bin/rails solid_queue:start"
     depends_on:
