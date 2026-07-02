@@ -140,7 +140,7 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: |
-            ghcr.io/geek4good/surf-radio:latest
-            ghcr.io/geek4good/surf-radio:${{ steps.meta.outputs.sha }}
+            ghcr.io/geek4good/icecast-stats:latest
+            ghcr.io/geek4good/icecast-stats:${{ steps.meta.outputs.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
