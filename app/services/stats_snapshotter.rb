@@ -1,18 +1,22 @@
-require "faraday"
+require "net/http"
 
 class StatsSnapshotter
   def snapshot_stats
-    url = Rails.application.credentials.stats_url
-    params = {}
-    headers = {"Accept" => "application/json"}
-    res = Faraday.get(url, params, headers)
+    res = Net::HTTP.get_response(uri, headers)
+    res.value # raises error if request was unsuccessful
 
-    if res.success?
-      Snapshot.create(stats: JSON.parse(res.body))
-    else
-      Rails.logger.error(res.body)
-    end
+    Snapshot.create(stats: JSON.parse(res.body))
   rescue => e
     Rails.logger.error(e.to_s)
+  end
+
+  private
+
+  def uri
+    @uri ||= URI(Rails.application.credentials.stats_url)
+  end
+
+  def
+    @headers ||= {"Accept" => "application/json"}
   end
 end
