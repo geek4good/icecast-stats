@@ -14,29 +14,31 @@ class Songs::ShowView < BaseHtmlComponent
   end
 
   def view_template(&)
-    # Row 1: Station tabs (left) + View tabs (right)
-    div(class: "nav-row") do
-      render Nav::StationTabsComponent.new(
+    div(class: "page-container") do
+      # Row 1: View tabs (left) + Station tabs (right)
+      div(class: "nav-row") do
+        render Nav::ViewTabsComponent.new(
+          station_slug: @station_slug,
+          current_view: "songs",
+          current_interval: @interval
+        )
+        render Nav::StationTabsComponent.new(
+          station_slug: @station_slug,
+          current_view: "songs",
+          current_interval: @interval
+        )
+      end
+
+      # Row 2: Interval tabs
+      render Nav::IntervalTabsComponent.new(
         station_slug: @station_slug,
         current_view: "songs",
         current_interval: @interval
       )
-      render Nav::ViewTabsComponent.new(
-        station_slug: @station_slug,
-        current_view: "songs",
-        current_interval: @interval
-      )
+
+      h1 { @title }
+
+      yield if block_given?
     end
-
-    # Row 2: Interval tabs
-    render Nav::IntervalTabsComponent.new(
-      station_slug: @station_slug,
-      current_view: "songs",
-      current_interval: @interval
-    )
-
-    h1 { @title }
-
-    yield if block_given?
   end
 end

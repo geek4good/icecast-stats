@@ -11,15 +11,16 @@ class BarChartComponent < BaseSvgComponent
   CHART_HEIGHT = 350
   PADDING_LEFT = 48
   PADDING_RIGHT = 16
-  PADDING_TOP = 16
+  PADDING_TOP = 36
   PADDING_BOTTOM = 48
   BAR_GAP = 4
 
-  def initialize(stats:, width: CHART_WIDTH, height: CHART_HEIGHT, dark_mode: false)
+  def initialize(stats:, width: CHART_WIDTH, height: CHART_HEIGHT, dark_mode: false, tooltip_labels: nil)
     super(dark_mode: dark_mode)
     @stats = stats
     @width = width
     @height = height
+    @tooltip_labels = tooltip_labels
   end
 
   def view_template
@@ -83,47 +84,83 @@ class BarChartComponent < BaseSvgComponent
         total_bars_width = bar_count * bar_width + (bar_count - 1) * BAR_GAP
         offset_x = plot_left + (plot_width - total_bars_width) / 2
 
-        g("data-role": "bars") do
-          @stats.each_with_index do |(label, avg, peak, _median), i|
-            x = offset_x + i * (bar_width + BAR_GAP)
+        # Precompute layout for each bar
+        bars = @stats.each_with_index.map do |(label, avg, peak, _median), i|
+          x = offset_x + i * (bar_width + BAR_GAP)
+          avg_height = (avg.to_f / y_max * plot_height).round(2)
+          peak_height = ((peak - avg).to_f / y_max * plot_height).round(2)
 
-            avg_height = (avg.to_f / y_max * plot_height).round(2)
-            peak_height = ((peak - avg).to_f / y_max * plot_height).round(2)
-            total_height = avg_height + peak_height
+          {
+            i: i, label: label, avg: avg, peak: peak, x: x,
+            avg_height: avg_height, peak_height: peak_height,
+            y_avg: plot_bottom - avg_height,
+            y_peak: plot_bottom - avg_height - peak_height,
+            tooltip_label: @tooltip_labels&.[](i)
+          }
+        end
 
-            y_avg = plot_bottom - total_height
-            y_peak = plot_bottom - total_height + peak_height
+        # Tooltips are in a separate group (rendered after bars for correct
+        # paint order), so we use :has() selectors to link hover state.
+        style do
+          bars.each do |b|
+            plain(".bars:has(.bar-#{b[:i]}:hover)~.tooltips .tip-#{b[:i]}{opacity:.95} ")
+          end
+        end
 
-            g("data-role": "bar-group") do
-              title { "#{label} — Avg: #{avg}, Peak: #{peak}" }
-
-              # Peak bar (on top)
-              if peak_height > 0
+        g(class: "bars") do
+          bars.each do |b|
+            g(class: "bar-#{b[:i]}") do
+              if b[:peak_height] > 0
                 rect(
-                  x: x, y: y_peak,
-                  width: bar_width, height: [peak_height, 0.5].max,
-                  fill: c[:peak],
-                  rx: 2
+                  x: b[:x], y: b[:y_peak],
+                  width: bar_width, height: [b[:peak_height], 0.5].max,
+                  fill: c[:peak], rx: 2
                 )
               end
 
-              # Average bar (below peak)
-              if avg_height > 0
+              if b[:avg_height] > 0
                 rect(
-                  x: x, y: y_avg + peak_height,
-                  width: bar_width, height: [avg_height, 0.5].max,
+                  x: b[:x], y: b[:y_avg],
+                  width: bar_width, height: [b[:avg_height], 0.5].max,
                   fill: c[:avg]
                 )
               end
 
-              # X-axis label
               text(
-                x: x + bar_width / 2, y: plot_bottom + 20,
+                x: b[:x] + bar_width / 2, y: plot_bottom + 20,
                 "text-anchor": "middle",
-                fill: c[:text],
-                "font-size": "11",
-                "data-role": "x-label"
-              ) { label }
+                fill: c[:text], "font-size": "11"
+              ) { b[:label] }
+            end
+          end
+        end
+
+        # Tooltips (rendered after all bars for correct paint order)
+        g(class: "tooltips") do
+          bars.each do |b|
+            lines = []
+            lines << b[:tooltip_label] if b[:tooltip_label]
+            lines << "Avg #{b[:avg]} · Peak #{b[:peak]}"
+
+            tooltip_w = [lines.map(&:length).max * 6.5 + 16, 70].max
+            tooltip_x = (b[:x] + bar_width / 2 - tooltip_w / 2).to_i
+            tooltip_x = tooltip_x.clamp(plot_left, plot_right - tooltip_w)
+            tooltip_h = lines.length * 15 + 7
+            tooltip_y = b[:y_peak] - tooltip_h - 6
+
+            g(class: "tip-#{b[:i]} bar-tooltip", "pointer-events": "none") do
+              rect(
+                x: tooltip_x, y: tooltip_y,
+                width: tooltip_w, height: tooltip_h,
+                fill: c[:text_dark], rx: 4
+              )
+              lines.each_with_index do |line, li|
+                text(
+                  x: tooltip_x + tooltip_w / 2, y: tooltip_y + 15 + li * 15,
+                  "text-anchor": "middle",
+                  fill: c[:bg], "font-size": "11"
+                ) { line }
+              end
             end
           end
         end

@@ -26,7 +26,8 @@ class ListenersController < ApplicationController
     day_end = day_start + 1.day
 
     scope = station_scope(Stat).hourly
-    stats = hourly_stats(scope, day_start, day_end)
+    stats, tooltip_labels = hourly_stats(scope, day_start, day_end)
+    summary = daily_period_summary(scope, day_start, day_end)
     date_label = @date.strftime("%A, %-d %B %Y")
 
     prev_date = (@date - 1.day).strftime("%Y-%m-%d")
@@ -41,12 +42,12 @@ class ListenersController < ApplicationController
     view = Listeners::ShowView.new(
       station_slug: @station_slug,
       interval: "daily",
-      title: @station_name,
-      date_nav: date_nav
+      date_nav: date_nav,
+      summary: summary
     ) { |v|
       if stats.any?
         v.render ChartCardComponent.new(title: @station_name, subtitle: "Listeners per hour") do
-          v.render BarChartComponent.new(stats: stats)
+          v.render BarChartComponent.new(stats: stats, tooltip_labels: tooltip_labels)
         end
       else
         v.p { "No stats recorded yet." }
@@ -73,7 +74,7 @@ class ListenersController < ApplicationController
     week_end_time = Time.zone.local(@week_end.year, @week_end.month, @week_end.day)
 
     scope = station_scope(Stat).daily
-    stats = fetch_daily_stats(scope, week_start_time, week_end_time, @week_start)
+    stats, tooltip_labels = fetch_daily_stats(scope, week_start_time, week_end_time, @week_start)
     summary = daily_period_summary(scope, week_start_time, week_end_time)
 
     next_week_start = @week_start + 1.week
@@ -86,15 +87,12 @@ class ListenersController < ApplicationController
     view = Listeners::ShowView.new(
       station_slug: @station_slug,
       interval: "weekly",
-      title: @station_name,
-      date_nav: date_nav
+      date_nav: date_nav,
+      summary: summary
     ) { |v|
       if stats.any? { |s| s[1] > 0 }
         v.render ChartCardComponent.new(title: @station_name, subtitle: "Daily averages") do
-          v.render BarChartComponent.new(stats: stats)
-        end
-        if summary
-          v.render SummaryRowComponent.new(summary: summary)
+          v.render BarChartComponent.new(stats: stats, tooltip_labels: tooltip_labels)
         end
       else
         v.p { "No stats recorded for this week." }
@@ -113,7 +111,7 @@ class ListenersController < ApplicationController
     month_end_time = Time.zone.local(@month_end.year, @month_end.month, @month_end.day)
 
     scope = station_scope(Stat).daily
-    stats = fetch_daily_stats(scope, month_start_time, month_end_time, @month_start)
+    stats, tooltip_labels = fetch_daily_stats(scope, month_start_time, month_end_time, @month_start)
     summary = daily_period_summary(scope, month_start_time, month_end_time)
 
     date_nav = {
@@ -125,15 +123,12 @@ class ListenersController < ApplicationController
     view = Listeners::ShowView.new(
       station_slug: @station_slug,
       interval: "monthly",
-      title: @station_name,
-      date_nav: date_nav
+      date_nav: date_nav,
+      summary: summary
     ) { |v|
       if stats.any? { |s| s[1] > 0 }
         v.render ChartCardComponent.new(title: @station_name, subtitle: "Daily averages") do
-          v.render BarChartComponent.new(stats: stats)
-        end
-        if summary
-          v.render SummaryRowComponent.new(summary: summary)
+          v.render BarChartComponent.new(stats: stats, tooltip_labels: tooltip_labels)
         end
       else
         v.p { "No stats recorded for this month." }
@@ -223,12 +218,11 @@ class ListenersController < ApplicationController
     view = Listeners::ShowView.new(
       station_slug: @station_slug,
       interval: "patterns",
-      title: "Listener Patterns — #{@station_name}",
       date_nav: date_nav
     ) { |v|
       if granularity_raw.any? && dow_averages.any?
         v.render ChartCardComponent.new(title: "Day-of-Week Averages", subtitle: "Average listeners by day") do
-          v.render BarChartComponent.new(stats: dow_chart)
+          v.render BarChartComponent.new(stats: dow_chart, tooltip_labels: dow_averages.map { |row| %w[Sunday Monday Tuesday Wednesday Thursday Friday Saturday][row["dow"].to_i] })
         end
       end
 
@@ -252,13 +246,17 @@ class ListenersController < ApplicationController
   end
 
   def hourly_stats(scope, day_start, day_end)
+    stats = []
+    labels = []
     scope
       .where(from: day_start...day_end)
       .order(:from)
-      .map do |stat|
-        local_hour = stat.from.in_time_zone.strftime("%-k")
-        [local_hour, stat.average || 0, stat.maximum || 0, stat.median || 0]
+      .each do |stat|
+        local = stat.from.in_time_zone
+        stats << [local.strftime("%-k"), stat.average || 0, stat.maximum || 0, stat.median || 0]
+        labels << local.strftime("%a %-d %b, %-k:00")
       end
+    [stats, labels]
   end
 
   def fetch_daily_stats(scope, period_start, period_end, date_start)
@@ -269,7 +267,7 @@ class ListenersController < ApplicationController
     num_days = ((period_end - period_start) / 1.day).to_i
     days = (date_start...(date_start + num_days.days)).to_a
 
-    days.map do |date|
+    stats = days.map do |date|
       stat = rows[date]
       if stat
         [date.strftime("%-d"), stat.average, stat.maximum, stat.median]
@@ -277,6 +275,8 @@ class ListenersController < ApplicationController
         [date.strftime("%-d"), 0, 0, 0]
       end
     end
+    labels = days.map { |date| date.strftime("%a %-d %b") }
+    [stats, labels]
   end
 
   def daily_period_summary(scope, period_start, period_end)

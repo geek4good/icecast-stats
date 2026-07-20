@@ -12,12 +12,15 @@ class SummaryRowComponent < BaseHtmlComponent
     div(class: "summary-row") do
       span {
         strong { @summary[:avg].to_s }
+        plain " Avg"
       }
       span {
         strong { @summary[:peak].to_s }
+        plain " Peak"
       }
       span {
         strong { @summary[:hours].to_s }
+        plain " Hours"
       }
     end
   end

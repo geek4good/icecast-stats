@@ -42,6 +42,13 @@ h1 {
   margin-bottom: 1.5rem;
 }
 
+/* ---- Page layout ---- */
+
+.page-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
 /* ---- Navigation ---- */
 
 .nav-row {
@@ -106,7 +113,6 @@ a.nav-interval:hover {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1rem;
 }
 
 .date-nav .nav-link {
@@ -119,6 +125,14 @@ a.nav-interval:hover {
   color: var(--color-muted);
 }
 
+.chart-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
 /* ---- Chart card ---- */
 
 .chart-card {
@@ -126,7 +140,6 @@ a.nav-interval:hover {
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  max-width: 52rem;
 }
 
 .chart-header {
@@ -152,12 +165,18 @@ a.nav-interval:hover {
   height: auto;
 }
 
+/* ---- Bar chart tooltips ---- */
+
+.bar-tooltip {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
 /* ---- Summary ---- */
 
 .summary-row {
   display: flex;
   gap: 1.5rem;
-  margin-top: 1rem;
   font-size: 0.875rem;
   color: var(--color-muted);
 }
