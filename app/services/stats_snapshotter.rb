@@ -16,7 +16,7 @@ class StatsSnapshotter
     @uri ||= URI(Rails.application.credentials.stats_url)
   end
 
-  def
+  def headers
     @headers ||= {"Accept" => "application/json"}
   end
 end
