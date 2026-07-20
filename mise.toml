@@ -4,6 +4,7 @@ ruby = "4.0.5"
 
 [env]
 _.file = ".env.local"
+_.path = "./bin"
 PGDATA = "{{config_root}}/storage/postgres"
 
 [tasks."db:start"]
