@@ -136,8 +136,8 @@ class ListenersControllerTest < ActionDispatch::IntegrationTest
     get listeners_path(station: "surf-radio", interval: "weekly")
     assert_response :success
     # Summary row should contain Avg and Peak from the consolidated query
-    assert_includes response.body, "Avg:"
-    assert_includes response.body, "Peak:"
+    assert_includes response.body, "<strong>50</strong> Avg"
+    assert_includes response.body, "<strong>100</strong> Peak"
   end
 
   # ── Monthly view ──
@@ -210,8 +210,8 @@ class ListenersControllerTest < ActionDispatch::IntegrationTest
     end
     get listeners_path(station: "surf-radio", interval: "monthly")
     assert_response :success
-    assert_includes response.body, "Avg:"
-    assert_includes response.body, "Peak:"
+    assert_includes response.body, "<strong>60</strong> Avg"
+    assert_includes response.body, "<strong>120</strong> Peak"
   end
 
   # ── Patterns view ──

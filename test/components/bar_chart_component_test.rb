@@ -30,15 +30,15 @@ class BarChartComponentTest < Minitest::Test
 
   def test_renders_correct_number_of_bar_groups
     doc = render_component(BarChartComponent.new(stats: sample_stats))
-    bar_groups = doc.css('g[data-role="bar-group"]')
+    bar_groups = doc.css("g.bars > g")
     assert_equal 4, bar_groups.length
   end
 
-  def test_each_bar_group_has_tooltip_title
+  def test_each_bar_has_tooltip
     doc = render_component(BarChartComponent.new(stats: sample_stats))
-    titles = doc.css('g[data-role="bar-group"] title')
-    assert_equal 4, titles.length
-    assert_includes titles.first.text, "0"
+    tooltips = doc.css("g.tooltips > g")
+    assert_equal 4, tooltips.length
+    assert_includes tooltips.first.text, "Avg 10"
   end
 
   def test_renders_y_axis_grid_labels
@@ -51,7 +51,7 @@ class BarChartComponentTest < Minitest::Test
 
   def test_renders_x_axis_labels
     doc = render_component(BarChartComponent.new(stats: sample_stats))
-    x_labels = doc.css('text[data-role="x-label"]')
+    x_labels = doc.css("g.bars > g > text")
     assert_equal 4, x_labels.length
     assert_equal "0", x_labels[0].text
     assert_equal "3", x_labels[3].text
@@ -78,7 +78,7 @@ class BarChartComponentTest < Minitest::Test
     doc = render_component(BarChartComponent.new(stats: []))
     svg = doc.at_css("svg")
     assert svg, "Should still render SVG even with empty stats"
-    bar_groups = doc.css('g[data-role="bar-group"]')
+    bar_groups = doc.css("g.bars > g")
     assert_equal 0, bar_groups.length
   end
 
@@ -92,7 +92,7 @@ class BarChartComponentTest < Minitest::Test
   def test_handles_single_data_point
     single = [["12pm", 42, 50, 45]]
     doc = render_component(BarChartComponent.new(stats: single))
-    bar_groups = doc.css('g[data-role="bar-group"]')
+    bar_groups = doc.css("g.bars > g")
     assert_equal 1, bar_groups.length
   end
 
