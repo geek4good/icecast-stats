@@ -21,6 +21,9 @@ gem "bootsnap", require: false
 # Add HTTP asset caching/compression and X-Sendfile acceleration to Puma [https://github.com/basecamp/thruster/]
 gem "thruster", require: false
 
+# Object-oriented views in Ruby (HTML and SVG)
+gem "phlex-rails", "~> 2.4"
+
 group :development, :test do
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
@@ -46,5 +49,3 @@ group :test do
   gem "selenium-webdriver"
   gem "webmock", require: false
 end
-
-gem "phlex-rails", "~> 2.4"
