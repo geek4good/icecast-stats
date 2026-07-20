@@ -23,7 +23,7 @@ DAYS.times do |day_offset|
   weekday = date.wday
 
   STATIONS.each do |station|
-    base_listeners = station == "Surf Radio" ? 25 : 15
+    base_listeners = (station == "Surf Radio") ? 25 : 15
     weekend_boost = [0, 6].include?(weekday) ? 5 : 0
 
     # Hourly stats — 24 per day per station
@@ -31,12 +31,12 @@ DAYS.times do |day_offset|
     # peaking in the evening.
     24.times do |hour|
       hour_curve = case hour
-      when 0..5  then 0.3  # Late night
-      when 6..9  then 0.6  # Morning ramp-up
+      when 0..5 then 0.3 # Late night
+      when 6..9 then 0.6 # Morning ramp-up
       when 10..14 then 0.9 # Midday
       when 15..18 then 1.0 # Afternoon peak
       when 19..22 then 0.8 # Evening
-      else 0.4             # Late evening
+      else 0.4 # Late evening
       end
 
       listeners = (base_listeners * hour_curve + weekend_boost + rand(-3..3)).round
@@ -72,7 +72,7 @@ end
 # Monthly stats — aggregates for the full previous month
 previous_month = 1.month.ago.beginning_of_month
 STATIONS.each do |station|
-  base_listeners = station == "Surf Radio" ? 25 : 15
+  base_listeners = (station == "Surf Radio") ? 25 : 15
   Stat.find_or_create_by!(station: station, from: previous_month, to: previous_month.next_month) do |s|
     s.average = base_listeners
     s.median = base_listeners - 2
@@ -148,7 +148,7 @@ DAYS.times do |day_offset|
         play_time += ad_duration
       end
 
-      if play_time.hour >= 7 && play_time.hour <= 9 && rand < 0.2
+      if play_time.hour.between?(7, 9) && rand < 0.2
         news_title = NEWS_TITLES.sample
         news_duration = rand(180..300)
         SongPlay.create!(
