@@ -48,6 +48,10 @@ RUN bundle install && \
 # Copy application code
 COPY . .
 
+# Bake the git SHA into the image for runtime version identification
+ARG GIT_SHA=unknown
+RUN echo "${GIT_SHA}" > REVISION
+
 # Precompile bootsnap code for faster boot times.
 # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
 RUN bundle exec bootsnap precompile -j 1 app/ lib/

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+#
+# deploy.sh — deploy a specific image SHA to the cluster.
+#
+# Uses immutable SHA-tagged images instead of the mutable :latest tag,
+# so uc always pulls the exact build you intend — no stale-cache surprises.
+#
+# Usage:
+#   ./scripts/deploy.sh              # deploy latest commit on origin/main
+#   ./scripts/deploy.sh abc1234      # deploy a specific 7-char SHA
+#
+set -euo pipefail
+
+IMAGE="ghcr.io/geek4good/icecast-stats"
+COMPOSE_FILE="${COMPOSE_FILE:-compose.yaml}"
+
+# Resolve the SHA to deploy
+SHA="${1:-$(git rev-parse --short=7 origin/main)}"
+IMAGE_TAG="${IMAGE}:${SHA}"
+
+echo ">>> Deploying ${IMAGE_TAG}"
+
+if [ ! -f "$COMPOSE_FILE" ]; then
+    echo "!!! ${COMPOSE_FILE} not found."
+    echo "    Set COMPOSE_FILE or run from the directory containing it."
+    exit 1
+fi
+
+# Create a temporary compose file referencing the SHA-tagged image.
+# A unique tag guarantees uc pulls it fresh — no stale :latest cache.
+TMPFILE=$(mktemp)
+trap 'rm -f "$TMPFILE"' EXIT
+sed "s|${IMAGE}:latest|${IMAGE_TAG}|g" "$COMPOSE_FILE" > "$TMPFILE"
+
+uc deploy -f "$TMPFILE" icecast-stats-web icecast-stats-queue --recreate --yes
+
+echo ""
+echo ">>> Verifying deployed commit:"
+uc exec icecast-stats-web -- cat /rails/REVISION 2>/dev/null \
+    && echo "" \
+    || echo "  (REVISION file not found — image predates SHA baking)"

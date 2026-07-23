@@ -139,6 +139,8 @@ jobs:
           context: .
           platforms: linux/arm64
           push: true
+          build-args: |
+            GIT_SHA=${{ steps.meta.outputs.sha }}
           tags: |
             ghcr.io/geek4good/icecast-stats:latest
             ghcr.io/geek4good/icecast-stats:${{ steps.meta.outputs.sha }}
