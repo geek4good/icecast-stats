@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# deploy.sh — deploy a specific image SHA to the cluster.
+# deploy — deploy a specific image SHA to the cluster.
 #
 # Uses immutable SHA-tagged images instead of the mutable :latest tag,
 # so uc always pulls the exact build you intend — no stale-cache surprises.
@@ -23,6 +23,13 @@ echo ">>> Deploying ${IMAGE_TAG}"
 if [ ! -f "$COMPOSE_FILE" ]; then
     echo "!!! ${COMPOSE_FILE} not found."
     echo "    Set COMPOSE_FILE or run from the directory containing it."
+    exit 1
+fi
+
+# Verify the compose file references the expected image tag
+if ! grep -q "${IMAGE}:latest" "$COMPOSE_FILE"; then
+    echo "!!! ${COMPOSE_FILE} does not reference ${IMAGE}:latest."
+    echo "    The deploy script can only override the :latest tag."
     exit 1
 fi
 
