@@ -1,4 +1,4 @@
-# Run in Rails console: load "script/backfill_song_plays.rb"
+# Run in Rails console: load "lib/scripts/backfill_song_plays.rb"
 #
 # Generates SongPlay records for every day that has snapshots.
 # Safe to re-run — skips duplicates.

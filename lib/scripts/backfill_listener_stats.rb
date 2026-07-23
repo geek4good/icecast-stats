@@ -1,4 +1,4 @@
-# Run in Rails console: load "scripts/backfill_listener_stats.rb"
+# Run in Rails console: load "lib/scripts/backfill_listener_stats.rb"
 #
 # Generates Stat records for every hour that has snapshots
 # but no stats yet. Safe to re-run — skips hours already calculated.
