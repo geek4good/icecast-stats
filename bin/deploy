@@ -12,7 +12,7 @@
 set -euo pipefail
 
 IMAGE="ghcr.io/geek4good/icecast-stats"
-COMPOSE_FILE="${COMPOSE_FILE:-compose.yaml}"
+COMPOSE_FILE="${COMPOSE_FILE:-$HOME/Projects/infra/compose.yaml}"
 
 # Resolve the SHA to deploy
 SHA="${1:-$(git rev-parse --short=7 origin/main)}"
@@ -33,13 +33,20 @@ if ! grep -q "${IMAGE}:latest" "$COMPOSE_FILE"; then
     exit 1
 fi
 
-# Create a temporary compose file referencing the SHA-tagged image.
-# A unique tag guarantees uc pulls it fresh — no stale :latest cache.
-TMPFILE=$(mktemp)
+# Resolve to an absolute path. The temp file must live alongside the
+# original compose file so uc discovers the .env file in the same
+# directory — a temp file in /tmp would leave all env vars blank.
+COMPOSE_FILE="$(cd "$(dirname "$COMPOSE_FILE")" && pwd)/$(basename "$COMPOSE_FILE")"
+COMPOSE_DIR="$(dirname "$COMPOSE_FILE")"
+
+TMPFILE="${COMPOSE_DIR}/.deploy-tmp.$$"
 trap 'rm -f "$TMPFILE"' EXIT
 sed "s|${IMAGE}:latest|${IMAGE_TAG}|g" "$COMPOSE_FILE" > "$TMPFILE"
 
+# Run from the compose directory so uc picks up .env
+pushd "$COMPOSE_DIR" > /dev/null
 uc deploy -f "$TMPFILE" icecast-stats-web icecast-stats-queue --recreate --yes
+popd > /dev/null
 
 echo ""
 echo ">>> Verifying deployed commit:"
