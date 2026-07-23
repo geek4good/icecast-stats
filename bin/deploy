@@ -6,8 +6,8 @@
 # so uc always pulls the exact build you intend — no stale-cache surprises.
 #
 # Usage:
-#   ./scripts/deploy.sh              # deploy latest commit on origin/main
-#   ./scripts/deploy.sh abc1234      # deploy a specific 7-char SHA
+#   bin/deploy              # deploy latest commit on origin/main
+#   bin/deploy abc1234      # deploy a specific 7-char SHA
 #
 set -euo pipefail
 

@@ -13,7 +13,7 @@ development:
   # All recurring jobs disabled in development.
   # To test with realistic data, dump the production aggregated
   # tables (stats, song_plays, stream_outages) into the dev DB.
-  # See scripts/pull-prod-data.sh
+  # See bin/pull-prod-data
 
 production:
   snapshot_surf_radio_stats:

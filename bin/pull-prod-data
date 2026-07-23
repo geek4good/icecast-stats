@@ -9,7 +9,7 @@
 # Does NOT pull raw snapshots — the views render from aggregated tables.
 # Total: ~125K rows, loads in seconds.
 #
-# Usage: ./scripts/pull-prod-data.sh
+# Usage: bin/pull-prod-data
 #
 set -euo pipefail
 
