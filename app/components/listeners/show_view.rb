@@ -8,7 +8,7 @@
 #     station_slug: @station_slug,
 #     interval: @interval,
 #     date_nav: { prev_href: "...", label: "Mon 2 Jun", next_href: "..." },
-#     summary: { avg: 12, peak: 30, hours: 168 }
+#     summary: { avg: 12, peak: 30, minutes: 168 }
 #   ) do
 #     render BarChartComponent.new(stats: @stats)
 #   end

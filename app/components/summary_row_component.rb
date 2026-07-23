@@ -1,8 +1,8 @@
-# Renders a summary row with Avg, Peak, Hours stats.
-# Used below bar charts in weekly and monthly views.
+# Renders a summary row with Avg, Peak, and listening time stats.
+# Used below bar charts in daily, weekly, and monthly views.
 #
 # Usage:
-#   render SummaryRowComponent.new(summary: { avg: 12, peak: 30, hours: 168 })
+#   render SummaryRowComponent.new(summary: { avg: 12, peak: 30, minutes: 168, unit: "Minutes" })
 class SummaryRowComponent < BaseHtmlComponent
   def initialize(summary:)
     @summary = summary
@@ -11,17 +11,27 @@ class SummaryRowComponent < BaseHtmlComponent
   def view_template
     div(class: "summary-row") do
       span {
-        strong { @summary[:avg].to_s }
+        strong { fmt(@summary[:avg]) }
         plain " Avg"
       }
       span {
-        strong { @summary[:peak].to_s }
+        strong { fmt(@summary[:median]) }
+        plain " Median"
+      }
+      span {
+        strong { fmt(@summary[:peak]) }
         plain " Peak"
       }
       span {
-        strong { @summary[:hours].to_s }
-        plain " Hours"
+        strong { fmt(@summary[:minutes]) }
+        plain " #{@summary[:unit]}"
       }
     end
+  end
+
+  private
+
+  def fmt(n)
+    n.to_i.to_s.gsub(/(\d)(?=(\d{3})+(?!\d))/, '\\1,')
   end
 end

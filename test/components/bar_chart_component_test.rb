@@ -39,6 +39,7 @@ class BarChartComponentTest < Minitest::Test
     tooltips = doc.css("g.tooltips > g")
     assert_equal 4, tooltips.length
     assert_includes tooltips.first.text, "Avg 10"
+    assert_includes tooltips.first.text, "Median 12"
   end
 
   def test_renders_y_axis_grid_labels

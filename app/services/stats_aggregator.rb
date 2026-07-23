@@ -28,7 +28,7 @@ class StatsAggregator
       SELECT
         station,
         ROUND(AVG(average))::int AS average,
-        ROUND(AVG(median))::int AS median,
+        ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY median))::int AS median,
         MAX(maximum) AS maximum,
         SUM(total_time) AS total_time,
         SUM(snapshot_count) AS snapshot_count

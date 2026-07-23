@@ -75,7 +75,7 @@ class ListenersController < ApplicationController
 
     scope = station_scope(Stat).daily
     stats, tooltip_labels = fetch_daily_stats(scope, week_start_time, week_end_time, @week_start)
-    summary = daily_period_summary(scope, week_start_time, week_end_time)
+    summary = daily_period_summary(scope, week_start_time, week_end_time, in_hours: true)
 
     next_week_start = @week_start + 1.week
     date_nav = {
@@ -112,7 +112,7 @@ class ListenersController < ApplicationController
 
     scope = station_scope(Stat).daily
     stats, tooltip_labels = fetch_daily_stats(scope, month_start_time, month_end_time, @month_start)
-    summary = daily_period_summary(scope, month_start_time, month_end_time)
+    summary = daily_period_summary(scope, month_start_time, month_end_time, in_hours: true)
 
     date_nav = {
       prev_href: listeners_path(station: @station_slug, interval: "monthly", month: (@month_start - 1.month).strftime("%Y-%m")),
@@ -279,17 +279,20 @@ class ListenersController < ApplicationController
     [stats, labels]
   end
 
-  def daily_period_summary(scope, period_start, period_end)
+  def daily_period_summary(scope, period_start, period_end, in_hours: false)
     row = scope.where(from: period_start...period_end)
       .pick(
         Arel.sql("COUNT(*)"),
         Arel.sql("COALESCE(ROUND(AVG(average)), 0)"),
         Arel.sql("COALESCE(MAX(maximum), 0)"),
-        Arel.sql("COALESCE(ROUND(AVG(median)), 0)"),
-        Arel.sql("COALESCE(SUM(snapshot_count), 0)")
+        Arel.sql("COALESCE(ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY median))::int, 0)"),
+        Arel.sql("COALESCE(SUM(total_time), 0)")
       )
     return nil if row.nil? || row[0].zero?
 
-    {avg: row[1].to_i, peak: row[2].to_i, median: row[3].to_i, hours: row[4].to_i}
+    minutes = row[4].to_i
+    {avg: row[1].to_i, peak: row[2].to_i, median: row[3].to_i,
+     minutes: in_hours ? minutes / 60 : minutes,
+     unit: in_hours ? "Hours" : "Minutes"}
   end
 end

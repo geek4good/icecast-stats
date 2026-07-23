@@ -85,13 +85,13 @@ class BarChartComponent < BaseSvgComponent
         offset_x = plot_left + (plot_width - total_bars_width) / 2
 
         # Precompute layout for each bar
-        bars = @stats.each_with_index.map do |(label, avg, peak, _median), i|
+        bars = @stats.each_with_index.map do |(label, avg, peak, median), i|
           x = offset_x + i * (bar_width + BAR_GAP)
           avg_height = (avg.to_f / y_max * plot_height).round(2)
           peak_height = ((peak - avg).to_f / y_max * plot_height).round(2)
 
           {
-            i: i, label: label, avg: avg, peak: peak, x: x,
+            i: i, label: label, avg: avg, peak: peak, median: median, x: x,
             avg_height: avg_height, peak_height: peak_height,
             y_avg: plot_bottom - avg_height,
             y_peak: plot_bottom - avg_height - peak_height,
@@ -140,7 +140,7 @@ class BarChartComponent < BaseSvgComponent
           bars.each do |b|
             lines = []
             lines << b[:tooltip_label] if b[:tooltip_label]
-            lines << "Avg #{b[:avg]} · Peak #{b[:peak]}"
+            lines << "Avg #{b[:avg]} · Median #{b[:median]} · Peak #{b[:peak]}"
 
             tooltip_w = [lines.map(&:length).max * 6.5 + 16, 70].max
             tooltip_x = (b[:x] + bar_width / 2 - tooltip_w / 2).to_i
