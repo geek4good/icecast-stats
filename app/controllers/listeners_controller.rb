@@ -156,6 +156,7 @@ class ListenersController < ApplicationController
         EXTRACT(DOW FROM #{local_ts}) AS dow,
         EXTRACT(HOUR FROM #{local_ts}) AS hour,
         ROUND(AVG(average))::int AS avg_listeners,
+        ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY median))::int AS avg_median,
         ROUND(AVG(maximum))::int AS avg_peak
       FROM stats
       #{time_filter}
@@ -163,7 +164,10 @@ class ListenersController < ApplicationController
       ORDER BY dow, hour
     SQL
 
-    day_names = %w[Sun Mon Tue Wed Thu Fri Sat]
+    # Remap DOW so Monday=0 ... Sunday=6
+    granularity_raw.each { |r| r["dow"] = (r["dow"].to_i + 6) % 7 }
+
+    day_names = %w[Mon Tue Wed Thu Fri Sat Sun]
 
     # Derive heatmap data (hour×dow grid)
     heatmap_data = {}
@@ -175,27 +179,29 @@ class ListenersController < ApplicationController
     dow_groups = granularity_raw.group_by { |row| row["dow"].to_i }
     dow_averages = dow_groups.sort.map do |dow, rows|
       avg = (rows.sum { |r| r["avg_listeners"].to_i * 1.0 } / rows.size).round
+      median = (rows.sum { |r| r["avg_median"].to_i * 1.0 } / rows.size).round
       peak = (rows.sum { |r| r["avg_peak"].to_i * 1.0 } / rows.size).round
-      {"dow" => dow, "avg_listeners" => avg, "avg_peak" => peak}
+      {"dow" => dow, "avg_listeners" => avg, "avg_median" => median, "avg_peak" => peak}
     end
 
     # Derive weekend vs weekday by splitting the hour-level data
-    wkend = granularity_raw.select { |r| [0, 6].include?(r["dow"].to_i) }
-    wkday = granularity_raw.select { |r| ![0, 6].include?(r["dow"].to_i) }
+    wkend = granularity_raw.select { |r| [5, 6].include?(r["dow"].to_i) }
+    wkday = granularity_raw.select { |r| ![5, 6].include?(r["dow"].to_i) }
     weekend_weekday = [
       ["weekend", wkend],
       ["weekday", wkday]
     ].filter_map do |period, rows|
       next if rows.empty?
       avg = (rows.sum { |r| r["avg_listeners"].to_i * 1.0 } / rows.size).round
+      median = (rows.sum { |r| r["avg_median"].to_i * 1.0 } / rows.size).round
       peak = (rows.sum { |r| r["avg_peak"].to_i * 1.0 } / rows.size).round
-      {"period" => period, "avg_listeners" => avg, "avg_peak" => peak}
+      {"period" => period, "avg_listeners" => avg, "avg_median" => median, "avg_peak" => peak}
     end
     weekend_weekday.sort_by! { |r| (r["period"] == "weekend") ? 0 : 1 }
 
     # Build day-of-week chart data
     dow_chart = dow_averages.map do |row|
-      [day_names[row["dow"].to_i], row["avg_listeners"].to_i, row["avg_peak"].to_i, row["avg_listeners"].to_i]
+      [day_names[row["dow"].to_i], row["avg_listeners"].to_i, row["avg_peak"].to_i, row["avg_median"].to_i]
     end
 
     # Build weekend/weekday cards
@@ -204,6 +210,7 @@ class ListenersController < ApplicationController
         title: row["period"].capitalize,
         stats: {
           "Avg" => row["avg_listeners"].to_s,
+          "Median" => row["avg_median"].to_s,
           "Peak" => row["avg_peak"].to_s
         }
       }
@@ -222,7 +229,7 @@ class ListenersController < ApplicationController
     ) { |v|
       if granularity_raw.any? && dow_averages.any?
         v.render ChartCardComponent.new(title: "Day-of-Week Averages", subtitle: "Average listeners by day") do
-          v.render BarChartComponent.new(stats: dow_chart, tooltip_labels: dow_averages.map { |row| %w[Sunday Monday Tuesday Wednesday Thursday Friday Saturday][row["dow"].to_i] })
+          v.render BarChartComponent.new(stats: dow_chart, tooltip_labels: dow_averages.map { |row| %w[Monday Tuesday Wednesday Thursday Friday Saturday Sunday][row["dow"].to_i] })
         end
       end
 

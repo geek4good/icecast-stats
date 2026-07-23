@@ -299,6 +299,7 @@ class ListenersControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Day-of-Week Averages"
     assert_includes response.body, "Hour × Day Heatmap"
     assert_includes response.body, "Weekend vs Weekday"
+    assert_includes response.body, "Median:"
   end
 
   test "patterns renders dow chart without heatmap data" do
