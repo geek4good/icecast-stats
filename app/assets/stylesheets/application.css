@@ -115,8 +115,11 @@ a.nav-interval:hover {
   gap: 1rem;
 }
 
-.date-nav .nav-link {
-  font-size: 1.25rem;
+.date-nav .nav-link,
+.date-nav .nav-link:visited {
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 1.5rem;
   line-height: 1;
 }
 
@@ -128,7 +131,7 @@ a.nav-interval:hover {
 .chart-meta {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
 }
