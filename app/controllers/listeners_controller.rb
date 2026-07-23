@@ -211,7 +211,7 @@ class ListenersController < ApplicationController
         stats: {
           "Avg" => row["avg_listeners"].to_s,
           "Median" => row["avg_median"].to_s,
-          "Peak" => row["avg_peak"].to_s
+          "Avg Peak" => row["avg_peak"].to_s
         }
       }
     end
