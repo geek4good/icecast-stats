@@ -66,6 +66,7 @@ class ListenersController < ApplicationController
       nil
     end
     @week_start ||= (Date.current - 1.week).beginning_of_week(:monday)
+    @week_start = (Date.current - 1.week).beginning_of_week(:monday) if @week_start >= Date.current.beginning_of_week(:monday)
 
     @week_end = @week_start + 7.days
     week_label = "#{@week_start.strftime("%-d %b")} – #{(@week_end - 1.day).strftime("%-d %b %Y")}"
@@ -81,7 +82,7 @@ class ListenersController < ApplicationController
     date_nav = {
       prev_href: listeners_path(station: @station_slug, interval: "weekly", week: (@week_start - 1.week).strftime("%G-W%V")),
       label: "Week of #{week_label} (ICT, UTC+7)",
-      next_href: (next_week_start <= Date.current) ? listeners_path(station: @station_slug, interval: "weekly", week: next_week_start.strftime("%G-W%V")) : nil
+      next_href: (next_week_start < Date.current.beginning_of_week(:monday)) ? listeners_path(station: @station_slug, interval: "weekly", week: next_week_start.strftime("%G-W%V")) : nil
     }
 
     view = Listeners::ShowView.new(
@@ -103,6 +104,7 @@ class ListenersController < ApplicationController
 
   def show_monthly
     @month_start = parse_month_param || (Date.current - 1.month).beginning_of_month
+    @month_start = (Date.current - 1.month).beginning_of_month if @month_start >= Date.current.beginning_of_month
 
     @month_end = @month_start.next_month
     month_label = @month_start.strftime("%B %Y")
@@ -117,7 +119,7 @@ class ListenersController < ApplicationController
     date_nav = {
       prev_href: listeners_path(station: @station_slug, interval: "monthly", month: (@month_start - 1.month).strftime("%Y-%m")),
       label: "#{month_label} (ICT, UTC+7)",
-      next_href: (@month_end <= Date.current) ? listeners_path(station: @station_slug, interval: "monthly", month: @month_end.strftime("%Y-%m")) : nil
+      next_href: (@month_end < Date.current.beginning_of_month) ? listeners_path(station: @station_slug, interval: "monthly", month: @month_end.strftime("%Y-%m")) : nil
     }
 
     view = Listeners::ShowView.new(
@@ -139,6 +141,7 @@ class ListenersController < ApplicationController
 
   def show_patterns
     @month_start = parse_month_param || (Date.current - 1.month).beginning_of_month
+    @month_start = (Date.current - 1.month).beginning_of_month if @month_start >= Date.current.beginning_of_month
 
     @month_end = @month_start.next_month
     prev_month = (@month_start - 1.month).strftime("%Y-%m")
@@ -219,7 +222,7 @@ class ListenersController < ApplicationController
     date_nav = {
       prev_href: listeners_path(station: @station_slug, interval: "patterns", month: prev_month),
       label: month_label,
-      next_href: (@month_end <= Date.current) ? listeners_path(station: @station_slug, interval: "patterns", month: next_month) : nil
+      next_href: (@month_end < Date.current.beginning_of_month) ? listeners_path(station: @station_slug, interval: "patterns", month: next_month) : nil
     }
 
     view = Listeners::ShowView.new(
