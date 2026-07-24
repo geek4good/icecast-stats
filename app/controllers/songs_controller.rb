@@ -17,24 +17,79 @@ class SongsController < ApplicationController
   private
 
   def show_daily
-    range = Date.current.beginning_of_day..Time.current
-    period_label = "#{Date.current.strftime("%A, %-d %B %Y")} (ICT)"
-    load_and_render(range, period_label)
+    @date = begin
+      params[:date] ? Date.parse(params[:date]) : Date.current - 1.day
+    rescue Date::Error
+      Date.current - 1.day
+    end
+    @date = Date.current - 1.day if @date >= Date.current
+
+    day_start = Time.zone.local(@date.year, @date.month, @date.day)
+    day_end = day_start + 1.day
+    range = day_start..day_end
+
+    prev_date = (@date - 1.day).strftime("%Y-%m-%d")
+    next_date = ((@date + 1.day) < Date.current) ? (@date + 1.day).strftime("%Y-%m-%d") : nil
+
+    date_nav = {
+      prev_href: songs_path(station: @station_slug, interval: "daily", date: prev_date),
+      label: "#{@date.strftime("%A, %-d %B %Y")} (ICT, UTC+7)",
+      next_href: next_date ? songs_path(station: @station_slug, interval: "daily", date: next_date) : nil
+    }
+
+    load_and_render(range, date_nav)
   end
 
   def show_weekly
-    range = Date.current.beginning_of_week(:monday).beginning_of_day..Time.current
-    period_label = "Week of #{range.begin.strftime("%-d %b")} – #{Date.current.strftime("%-d %b %Y")}"
-    load_and_render(range, period_label)
+    @week_start = begin
+      if params[:week].present? && params[:week].match?(/\A\d{4}-W(?:0[1-9]|[1-4]\d|5[0-3])\z/)
+        year, week_num = params[:week].split("-W").map(&:to_i)
+        Date.commercial(year, week_num, 1)
+      end
+    rescue Date::Error
+      nil
+    end
+    @week_start ||= (Date.current - 1.week).beginning_of_week(:monday)
+    @week_start = (Date.current - 1.week).beginning_of_week(:monday) if @week_start >= Date.current.beginning_of_week(:monday)
+    @week_end = @week_start + 7.days
+
+    week_start_time = Time.zone.local(@week_start.year, @week_start.month, @week_start.day)
+    week_end_time = Time.zone.local(@week_end.year, @week_end.month, @week_end.day)
+    range = week_start_time..week_end_time
+
+    week_label = "#{@week_start.strftime("%-d %b")} – #{(@week_end - 1.day).strftime("%-d %b %Y")}"
+
+    next_week_start = @week_start + 1.week
+    date_nav = {
+      prev_href: songs_path(station: @station_slug, interval: "weekly", week: (@week_start - 1.week).strftime("%G-W%V")),
+      label: "Week of #{week_label} (ICT, UTC+7)",
+      next_href: (next_week_start < Date.current.beginning_of_week(:monday)) ? songs_path(station: @station_slug, interval: "weekly", week: next_week_start.strftime("%G-W%V")) : nil
+    }
+
+    load_and_render(range, date_nav)
   end
 
   def show_monthly
-    range = Date.current.beginning_of_month.beginning_of_day..Time.current
-    period_label = Date.current.strftime("%B %Y")
-    load_and_render(range, period_label)
+    @month_start = parse_month_param || (Date.current - 1.month).beginning_of_month
+    @month_start = (Date.current - 1.month).beginning_of_month if @month_start >= Date.current.beginning_of_month
+    @month_end = @month_start.next_month
+
+    month_start_time = Time.zone.local(@month_start.year, @month_start.month, @month_start.day)
+    month_end_time = Time.zone.local(@month_end.year, @month_end.month, @month_end.day)
+    range = month_start_time..month_end_time
+
+    month_label = @month_start.strftime("%B %Y")
+
+    date_nav = {
+      prev_href: songs_path(station: @station_slug, interval: "monthly", month: (@month_start - 1.month).strftime("%Y-%m")),
+      label: "#{month_label} (ICT, UTC+7)",
+      next_href: (@month_end < Date.current.beginning_of_month) ? songs_path(station: @station_slug, interval: "monthly", month: @month_end.strftime("%Y-%m")) : nil
+    }
+
+    load_and_render(range, date_nav)
   end
 
-  def load_and_render(range, period_label)
+  def load_and_render(range, date_nav)
     plays = SongPlay.for_station(@station_name).where(started_at: range)
 
     content_breakdown = plays
@@ -51,7 +106,7 @@ class SongsController < ApplicationController
         "COUNT(*) AS play_count",
         "ROUND(AVG(duration_seconds))::int AS avg_duration"
       )
-      .order("total_duration DESC")
+      .order("play_count DESC, total_duration DESC")
       .limit(25)
 
     top_artists = plays.music
@@ -62,7 +117,7 @@ class SongsController < ApplicationController
         "SUM(duration_seconds) AS total_duration",
         "COUNT(*) AS play_count"
       )
-      .order("total_duration DESC")
+      .order("play_count DESC, total_duration DESC")
       .limit(25)
 
     top_ads = plays.ads
@@ -74,12 +129,10 @@ class SongsController < ApplicationController
         "COUNT(*) AS play_count",
         "ROUND(AVG(duration_seconds))::int AS avg_duration"
       )
-      .order("total_duration DESC")
+      .order("play_count DESC, total_duration DESC")
       .limit(25)
 
-    title = "Songs — #{@station_name} — #{period_label}"
-
-    view = Songs::ShowView.new(station_slug: @station_slug, interval: @interval, title: title) { |v|
+    view = Songs::ShowView.new(station_slug: @station_slug, interval: @interval, date_nav: date_nav) { |v|
       if content_breakdown.any?
         cards = content_breakdown.map { |category, minutes|
           {title: category.capitalize, stats: {"" => "#{minutes.to_s.gsub(/(\d)(?=(\d{3})+(?!\d))/, '\\1,')} min"}}

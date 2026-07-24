@@ -1,16 +1,15 @@
 # Shared shell for all Songs pages.
-# Renders the navigation (combined station+view row, then interval row),
-# page title, and yields to interval-specific content.
+# Renders the navigation, date navigation, and yields to interval-specific content.
 #
 # Usage:
-#   render Songs::ShowView.new(station_slug: @station_slug, interval: "daily", title: "Songs — This Week") do
+#   render Songs::ShowView.new(station_slug: @station_slug, interval: "daily", date_nav: date_nav) do
 #     render DataTableComponent.new(headers: [...], rows: [...])
 #   end
 class Songs::ShowView < BaseHtmlComponent
-  def initialize(station_slug:, interval:, title:)
+  def initialize(station_slug:, interval:, date_nav: nil)
     @station_slug = station_slug
     @interval = interval
-    @title = title
+    @date_nav = date_nav
   end
 
   def view_template(&)
@@ -36,7 +35,20 @@ class Songs::ShowView < BaseHtmlComponent
         current_interval: @interval
       )
 
-      h1 { @title }
+      # Date navigation
+      if @date_nav
+        div(class: "chart-meta") do
+          nav(class: "date-nav") do
+            if @date_nav[:prev_href]
+              a(href: @date_nav[:prev_href], class: "nav-link") { "‹" }
+            end
+            span(class: "date-label") { @date_nav[:label] }
+            if @date_nav[:next_href]
+              a(href: @date_nav[:next_href], class: "nav-link") { "›" }
+            end
+          end
+        end
+      end
 
       yield if block_given?
     end

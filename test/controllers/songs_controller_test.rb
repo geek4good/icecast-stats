@@ -51,7 +51,7 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
   test "monthly shows month label" do
     get songs_path(station: "surf-radio", interval: "monthly")
     assert_response :success
-    assert_includes response.body, Date.current.strftime("%B %Y")
+    assert_includes response.body, (Date.current - 1.month).beginning_of_month.strftime("%B %Y")
   end
 
   # ── Interval validation ──
@@ -86,7 +86,7 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
     travel_to Time.zone.parse("2026-06-24 12:00:00") do # Wednesday midday
       SongPlay.create!(
         title: "Some Promo", artist: nil, song: nil, category: "ads",
-        station: "Surf Radio", started_at: 1.day.ago, ended_at: 1.day.ago + 30.seconds,
+        station: "Surf Radio", started_at: 5.days.ago, ended_at: 5.days.ago + 30.seconds,
         duration_seconds: 30, snapshot_count: 6
       )
       get songs_path(station: "surf-radio", interval: "weekly")
@@ -128,5 +128,49 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     # Patterns should not appear as a clickable link for Songs
     # It may appear in the station nav but not in the song interval nav
+  end
+
+  # ── Date navigation ──
+
+  test "daily shows date navigation" do
+    get songs_path(station: "surf-radio", interval: "daily")
+    assert_response :success
+    assert_includes response.body, "date-nav"
+  end
+
+  test "daily defaults to previous day" do
+    get songs_path(station: "surf-radio", interval: "daily")
+    assert_response :success
+    assert_includes response.body, (Date.current - 1.day).strftime("%A, %-d %B %Y")
+  end
+
+  test "daily accepts date param" do
+    get songs_path(station: "surf-radio", interval: "daily", date: "2025-12-25")
+    assert_response :success
+    assert_includes response.body, "Thursday, 25 December 2025"
+  end
+
+  test "weekly shows date navigation" do
+    get songs_path(station: "surf-radio", interval: "weekly")
+    assert_response :success
+    assert_includes response.body, "date-nav"
+  end
+
+  test "weekly defaults to previous week" do
+    get songs_path(station: "surf-radio", interval: "weekly")
+    assert_response :success
+    assert_includes response.body, "Week of"
+  end
+
+  test "monthly shows date navigation" do
+    get songs_path(station: "surf-radio", interval: "monthly")
+    assert_response :success
+    assert_includes response.body, "date-nav"
+  end
+
+  test "monthly defaults to previous month" do
+    get songs_path(station: "surf-radio", interval: "monthly")
+    assert_response :success
+    assert_includes response.body, (Date.current - 1.month).beginning_of_month.strftime("%B %Y")
   end
 end
