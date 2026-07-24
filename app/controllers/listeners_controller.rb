@@ -58,8 +58,8 @@ class ListenersController < ApplicationController
 
   def show_weekly
     @week_start = begin
-      if params[:week].present? && params[:week].match?(/\A\d{4}-W(?:0[1-9]|[1-4]\d|5[0-3])\z/)
-        year, week_num = params[:week].split("-W").map(&:to_i)
+      if params[:week].present? && params[:week].match?(/\A\d{4}-[wW](?:0[1-9]|[1-4]\d|5[0-3])\z/)
+        year, week_num = params[:week].split(/-[wW]/).map(&:to_i)
         Date.commercial(year, week_num, 1)
       end
     rescue Date::Error
