@@ -42,6 +42,7 @@ class StatsCalculator
         ) AS source
       WHERE
         created_at >= :from AND created_at < :to
+        AND source->>'listeners' IS NOT NULL
       GROUP BY
         source->>'server_name'
     SQL

@@ -17,8 +17,8 @@ class StatsCalculatorTest < ActiveSupport::TestCase
     surf_radio = results.find { |r| r["station"] == "Surf Radio" }
     talay_fm = results.find { |r| r["station"] == "Talay FM" }
 
-    assert_equal 91, surf_radio["average"]
-    assert_equal 334, talay_fm["average"]
+    assert_equal 83, surf_radio["average"]
+    assert_equal 317, talay_fm["average"]
   end
 
   test "calculate_stats calculates correct maximum" do
@@ -35,8 +35,8 @@ class StatsCalculatorTest < ActiveSupport::TestCase
     surf_radio = results.find { |r| r["station"] == "Surf Radio" }
     talay_fm = results.find { |r| r["station"] == "Talay FM" }
 
-    assert_equal 91, surf_radio["median"]
-    assert_equal 334, talay_fm["median"]
+    assert_equal 83, surf_radio["median"]
+    assert_equal 317, talay_fm["median"]
   end
 
   test "calculate_stats calculates correct total_time" do
@@ -44,15 +44,15 @@ class StatsCalculatorTest < ActiveSupport::TestCase
     surf_radio = results.find { |r| r["station"] == "Surf Radio" }
     talay_fm = results.find { |r| r["station"] == "Talay FM" }
 
-    assert_equal 455, surf_radio["total_time"]
-    assert_equal 1670, talay_fm["total_time"]
+    assert_equal 415, surf_radio["total_time"]
+    assert_equal 1585, talay_fm["total_time"]
   end
 
   test "calculate_stats includes snapshot_count" do
     results = @calculator.calculate_stats.to_a
     surf_radio = results.find { |r| r["station"] == "Surf Radio" }
 
-    assert_equal 1, surf_radio["snapshot_count"]
+    assert_equal 2, surf_radio["snapshot_count"]
   end
 
   test "calculate_stats returns empty array when no snapshots in range" do
@@ -100,16 +100,42 @@ class StatsCalculatorTest < ActiveSupport::TestCase
     surf_radio = Stat.find_by(station: "Surf Radio", from: @from, to: @to)
     talay_fm = Stat.find_by(station: "Talay FM", from: @from, to: @to)
 
-    assert_equal 91, surf_radio.average
-    assert_equal 91, surf_radio.median
+    assert_equal 83, surf_radio.average
+    assert_equal 83, surf_radio.median
     assert_equal 91, surf_radio.maximum
-    assert_equal 455, surf_radio.total_time
-    assert_equal 1, surf_radio.snapshot_count
+    assert_equal 415, surf_radio.total_time
+    assert_equal 2, surf_radio.snapshot_count
 
-    assert_equal 334, talay_fm.average
-    assert_equal 334, talay_fm.median
+    assert_equal 317, talay_fm.average
+    assert_equal 317, talay_fm.median
     assert_equal 334, talay_fm.maximum
-    assert_equal 1670, talay_fm.total_time
-    assert_equal 1, talay_fm.snapshot_count
+    assert_equal 1585, talay_fm.total_time
+    assert_equal 2, talay_fm.snapshot_count
+  end
+
+  test "handles source as single object instead of array" do
+    Snapshot.create!(
+      created_at: @from + 30.seconds,
+      stats: {"icestats" => {"source" => {"server_name" => "Solo FM", "listeners" => 42}}}
+    )
+
+    results = @calculator.calculate_stats.to_a
+    solo = results.find { |r| r["station"] == "Solo FM" }
+
+    assert_equal 42, solo["average"]
+    assert_equal 42, solo["median"]
+    assert_equal 42, solo["maximum"]
+  end
+
+  test "handles source with missing listeners field" do
+    Snapshot.create!(
+      created_at: @from + 30.seconds,
+      stats: {"icestats" => {"source" => [{"server_name" => "No Listeners FM"}]}}
+    )
+
+    results = @calculator.calculate_stats.to_a
+    no_listeners = results.find { |r| r["station"] == "No Listeners FM" }
+
+    assert_nil no_listeners
   end
 end

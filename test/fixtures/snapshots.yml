@@ -71,3 +71,39 @@ two:
       ]
     }
   }.to_json %>
+
+three:
+  created_at: 2025-12-25 10:02:30
+  updated_at: 2025-12-25 10:02:30
+  stats: <%= {
+    "icestats" => {
+      "admin" => "icemaster@surf.radio",
+      "host" => "stream.surf.radio",
+      "location" => "Hua Hin, Thailand",
+      "server_id" => "Icecast 2.4.4",
+      "source" => [
+        {
+          "bitrate" => 96,
+          "genre" => "Pop",
+          "listener_peak" => 100,
+          "listeners" => 75,
+          "listenurl" => "http://stream.surf.radio:8000/surf1025",
+          "server_description" => "Surf Radio - Hua Hin",
+          "server_name" => "Surf Radio",
+          "server_type" => "audio/aacp",
+          "server_url" => "https://www.surf.radio"
+        },
+        {
+          "bitrate" => 96,
+          "genre" => "Pop",
+          "listener_peak" => 350,
+          "listeners" => 300,
+          "listenurl" => "http://stream.surf.radio:8000/talay",
+          "server_description" => "Talay 90.25 FM - Hua Hin",
+          "server_name" => "Talay FM",
+          "server_type" => "audio/aacp",
+          "server_url" => "https://www.talay.asia"
+        }
+      ]
+    }
+  }.to_json %>

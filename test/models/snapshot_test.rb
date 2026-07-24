@@ -23,7 +23,7 @@ class SnapshotTest < ActiveSupport::TestCase
 
   test "can query jsonb data" do
     snapshots = Snapshot.where("stats->'icestats'->'source' @> '[{\"server_name\": \"Surf Radio\"}]'")
-    assert_equal 2, snapshots.count
+    assert_equal 3, snapshots.count
     snapshots.each do |snapshot|
       assert snapshot.stats.dig("icestats", "source").any? { |s| s["server_name"] == "Surf Radio" }
     end
